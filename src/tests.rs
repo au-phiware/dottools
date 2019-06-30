@@ -58,4 +58,45 @@ mod parse {
             ]
         );
     }
+
+    mod vertical {
+        use crate::{Brush, Edge, Graph, LineColumn};
+
+        parse!(
+            short,
+            "|\n\n",
+            [(
+                LineColumn { line: 1, column: 0 },
+                LineColumn { line: 1, column: 0 },
+                Edge(None, Brush::NorthSouth('|'), None),
+            )]
+        );
+
+        parse!(
+            single_line,
+            "│\n│\n│\n",
+            [(
+                LineColumn { line: 1, column: 0 },
+                LineColumn { line: 3, column: 0 },
+                Edge(None, Brush::NorthSouth('│'), None),
+            )]
+        );
+
+        parse!(
+            multi_line,
+            "││\n││\n││\n",
+            [
+                (
+                    LineColumn { line: 1, column: 0 },
+                    LineColumn { line: 3, column: 0 },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    LineColumn { line: 1, column: 1 },
+                    LineColumn { line: 3, column: 1 },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                )
+            ]
+        );
+    }
 }

@@ -117,7 +117,7 @@ enum Tx {
 
 struct State {
     graph: UnGraphMap<LineColumn, Edge>,
-    ports: Vec<(LineColumn, LineColumn, Edge)>,
+    ports: Vec<(LineColumn, LineColumn, LineColumn, Edge)>,
     source_location: LineColumn,
     visible_location: LineColumn,
     tx: Tx,
@@ -125,6 +125,48 @@ struct State {
 
 impl State {
     fn next(&mut self, c: char) {
+        let LineColumn { line, column } = self.visible_location;
+        let ports = self.ports.to_owned();
+        self.ports = Vec::with_capacity(ports.len() + 1);
+        for (mut location, start, end, edge) in ports {
+            let brush = edge.1;
+            if location.line + 1 == line {
+                if match brush {
+                    Brush::NorthSouth(brush) => {
+                        if location.column == column {
+                            brush == c
+                        } else {
+                            false
+                        }
+                    }
+                    Brush::EastWest(_) => false,
+                    Brush::NorthEastSouthWest(brush) => {
+                        if location.column + 1 == column {
+                            brush == c
+                        } else {
+                            false
+                        }
+                    }
+                    Brush::NorthWestSouthEast(brush) => {
+                        if location.column == column + 1 {
+                            brush == c
+                        } else {
+                            false
+                        }
+                    }
+                } {
+                    location.line = line;
+                    location.column = column;
+                    self.ports
+                        .push((location, start, self.source_location, edge));
+                } else {
+                    self.ports.push((location, start, end, edge));
+                }
+            } else {
+                self.graph.add_edge(start, end, edge);
+            }
+        }
+
         self.tx = match self.tx {
             Tx::Initial => match c {
                 '─' | '═' | '━' | '┈' | '┉' | '┄' | '┅' | '╌' | '╍' | '-'
@@ -138,6 +180,7 @@ impl State {
                     self.ports.push((
                         self.visible_location,
                         start,
+                        self.source_location,
                         Edge(None, Brush::NorthSouth(c), None),
                     ));
                     Tx::Initial
