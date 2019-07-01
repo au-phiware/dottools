@@ -127,44 +127,32 @@ impl State {
     fn next(&mut self, c: char) {
         let LineColumn { line, column } = self.visible_location;
         let ports = self.ports.to_owned();
+        let mut pass = false;
         self.ports = Vec::with_capacity(ports.len() + 1);
         for (mut location, start, end, edge) in ports {
             let brush = edge.1;
-            if location.line + 1 == line {
+            if location.line + 1 >= line {
                 if match brush {
-                    Brush::NorthSouth(brush) => {
-                        if location.column == column {
-                            brush == c
-                        } else {
-                            false
-                        }
-                    }
+                    Brush::NorthSouth(brush) => location.column == column && brush == c,
                     Brush::EastWest(_) => false,
-                    Brush::NorthEastSouthWest(brush) => {
-                        if location.column + 1 == column {
-                            brush == c
-                        } else {
-                            false
-                        }
-                    }
-                    Brush::NorthWestSouthEast(brush) => {
-                        if location.column == column + 1 {
-                            brush == c
-                        } else {
-                            false
-                        }
-                    }
+                    Brush::NorthEastSouthWest(brush) => location.column + 1 == column && brush == c,
+                    Brush::NorthWestSouthEast(brush) => location.column == column + 1 && brush == c,
                 } {
                     location.line = line;
                     location.column = column;
                     self.ports
                         .push((location, start, self.source_location, edge));
+                    pass = true;
                 } else {
                     self.ports.push((location, start, end, edge));
                 }
             } else {
                 self.graph.add_edge(start, end, edge);
             }
+        }
+
+        if pass {
+            return;
         }
 
         self.tx = match self.tx {
@@ -201,10 +189,9 @@ impl State {
     }
 
     fn finish(&mut self) {
-        match self.tx {
-            Tx::Initial => (),
-            _ => self.next('\n'),
-        }
+        self.visible_location.line = std::usize::MAX;
+        self.visible_location.column = 0;
+        self.next('\n')
     }
 }
 

@@ -84,7 +84,7 @@ mod parse {
 
         parse!(
             multi_line,
-            "││\n││\n││\n",
+            "││\n││\n│\n",
             [
                 (
                     LineColumn { line: 1, column: 0 },
@@ -93,7 +93,378 @@ mod parse {
                 ),
                 (
                     LineColumn { line: 1, column: 1 },
-                    LineColumn { line: 3, column: 1 },
+                    LineColumn { line: 2, column: 1 },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                )
+            ]
+        );
+    }
+
+    mod node {
+        use crate::{Brush, Edge, Graph, LineColumn};
+
+        parse!(
+            simple_cross,
+            "
+             │
+            ─┼─
+             │
+            ",
+            [
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 13
+                    },
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 12
+                    },
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    LineColumn {
+                        line: 3,
+                        column: 14
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    LineColumn {
+                        line: 4,
+                        column: 13
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                )
+            ]
+        );
+
+        parse!(
+            corners,
+            "
+            ┌─┐
+            │ │
+            └─┘
+            ",
+            [
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 12
+                    },
+                    LineColumn {
+                        line: 2,
+                        column: 14
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 12
+                    },
+                    LineColumn {
+                        line: 4,
+                        column: 12
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 14
+                    },
+                    LineColumn {
+                        line: 4,
+                        column: 14
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 4,
+                        column: 12
+                    },
+                    LineColumn {
+                        line: 4,
+                        column: 14
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                )
+            ]
+        );
+
+        parse!(
+            rounded_corners,
+            "
+            ╭─╮
+            │ │
+            ╰─╯
+            ",
+            [
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 12
+                    },
+                    LineColumn {
+                        line: 2,
+                        column: 14
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 12
+                    },
+                    LineColumn {
+                        line: 4,
+                        column: 12
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 14
+                    },
+                    LineColumn {
+                        line: 4,
+                        column: 14
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 4,
+                        column: 12
+                    },
+                    LineColumn {
+                        line: 4,
+                        column: 14
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                )
+            ]
+        );
+
+        parse!(
+            t_crossing,
+            "
+             │
+             ├─┬─
+             │ │
+            ─┴─┤
+               │
+            ",
+            [
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 13
+                    },
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    LineColumn {
+                        line: 3,
+                        column: 15
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 15
+                    },
+                    LineColumn {
+                        line: 3,
+                        column: 16
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    LineColumn {
+                        line: 5,
+                        column: 13
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 15
+                    },
+                    LineColumn {
+                        line: 5,
+                        column: 15
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 5,
+                        column: 12
+                    },
+                    LineColumn {
+                        line: 5,
+                        column: 13
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 5,
+                        column: 13
+                    },
+                    LineColumn {
+                        line: 5,
+                        column: 15
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 5,
+                        column: 15
+                    },
+                    LineColumn {
+                        line: 6,
+                        column: 15
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                )
+            ]
+        );
+
+        parse!(
+            mixed_brush,
+            "
+             │
+             ┢━┱─
+             ┃ ┃
+            ─┺━┩
+               │
+            ",
+            [
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 13
+                    },
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    LineColumn {
+                        line: 3,
+                        column: 15
+                    },
+                    Edge(None, Brush::EastWest('━'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 15
+                    },
+                    LineColumn {
+                        line: 3,
+                        column: 16
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    LineColumn {
+                        line: 5,
+                        column: 13
+                    },
+                    Edge(None, Brush::NorthSouth('┃'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 15
+                    },
+                    LineColumn {
+                        line: 5,
+                        column: 15
+                    },
+                    Edge(None, Brush::NorthSouth('┃'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 5,
+                        column: 12
+                    },
+                    LineColumn {
+                        line: 5,
+                        column: 13
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 5,
+                        column: 13
+                    },
+                    LineColumn {
+                        line: 5,
+                        column: 15
+                    },
+                    Edge(None, Brush::EastWest('━'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 5,
+                        column: 15
+                    },
+                    LineColumn {
+                        line: 6,
+                        column: 15
+                    },
                     Edge(None, Brush::NorthSouth('│'), None),
                 )
             ]

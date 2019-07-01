@@ -7,6 +7,7 @@ edition = "2018"
 license = "MIT"
 
 repository = "https://github.com/au-phiware/dottools.git"
+readme = "README.md"
 
 [dependencies]
 petgraph = "0.4.13"
