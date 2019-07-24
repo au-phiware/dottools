@@ -214,6 +214,61 @@ mod parse {
         );
 
         parse!(
+            mixed_brush_corners,
+            "
+            ┍━┑
+            │ │
+            ╘═╛
+            ",
+            [
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 12
+                    },
+                    LineColumn {
+                        line: 2,
+                        column: 14
+                    },
+                    Edge(None, Brush::EastWest('━'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 12
+                    },
+                    LineColumn {
+                        line: 4,
+                        column: 12
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 14
+                    },
+                    LineColumn {
+                        line: 4,
+                        column: 14
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 4,
+                        column: 12
+                    },
+                    LineColumn {
+                        line: 4,
+                        column: 14
+                    },
+                    Edge(None, Brush::EastWest('═'), None),
+                )
+            ]
+        );
+
+        parse!(
             rounded_corners,
             "
             ╭─╮
@@ -370,7 +425,7 @@ mod parse {
         );
 
         parse!(
-            mixed_brush,
+            mixed_brush_t_crossing,
             "
              │
              ┢━┱─

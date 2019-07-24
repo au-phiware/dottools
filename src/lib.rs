@@ -143,6 +143,29 @@ impl State {
                     self.ports
                         .push((location, start, self.source_location, edge));
                     pass = true;
+                } else if location.column == column
+                    && match brush {
+                        Brush::NorthSouth(brush) => match brush {
+                            '│' | '┊' | '┆' | '╎' => match c {
+                                '└' | '╘' | '╰' | '┕' | '┘' | '╛' | '╯' | '┙' => {
+                                    true
+                                }
+                                _ => false,
+                            },
+                            '┃' | '┋' | '┇' | '╏' => match c {
+                                '┗' | '┖' | '┛' | '┚' => true,
+                                _ => false,
+                            },
+                            '║' => match c {
+                                '╚' | '╙' | '╝' | '╜' => true,
+                                _ => false,
+                            },
+                            _ => false,
+                        },
+                        _ => false,
+                    }
+                {
+                    self.graph.add_edge(start, self.source_location, edge);
                 } else {
                     self.ports.push((location, start, end, edge));
                 }
@@ -173,18 +196,98 @@ impl State {
                     ));
                     Tx::Initial
                 }
+                '┌' | '╔' | '┏' | '╒' | '╓' | '╭' | '┍' | '┎' => {
+                    let start = self.graph.add_node(self.source_location.clone());
+                    let brush = match c {
+                        '╔' | '╓' => '║',
+                        '┏' | '┎' => '┃',
+                        _ => '│',
+                    };
+                    self.ports.push((
+                        self.visible_location,
+                        start,
+                        self.source_location,
+                        Edge(None, Brush::NorthSouth(brush), None),
+                    ));
+                    let brush = match c {
+                        '╔' | '╒' => '═',
+                        '┏' | '┍' => '━',
+                        _ => '─',
+                    };
+                    let edge = Edge(None, Brush::EastWest(brush), None);
+                    Tx::Build { start, edge }
+                }
+                '└' | '╚' | '┗' | '╘' | '╙' | '╰' | '┕' | '┖' => {
+                    let start = self.graph.add_node(self.source_location.clone());
+                    let brush = match c {
+                        '╚' | '╘' => '═',
+                        '┗' | '┕' => '━',
+                        _ => '─',
+                    };
+                    let edge = Edge(None, Brush::EastWest(brush), None);
+                    Tx::Build { start, edge }
+                }
                 _ => Tx::Initial,
             },
             Tx::Build { start, edge } => match edge.1 {
-                Brush::EastWest(chr) if c == chr => self.tx,
+                Brush::EastWest(brush) if c == brush => self.tx,
                 _ => {
-                    let mut source_location = self.source_location.clone();
-                    source_location.column -= 1;
-                    let end = self.graph.add_node(source_location);
+                    let end = match edge.1 {
+                        Brush::EastWest(brush)
+                            if match brush {
+                                '─' | '┈' | '┄' | '╌' => match c {
+                                    '┘' | '╜' | '╯' | '┚' | '┐' | '╖' | '╮'
+                                    | '┒' => true,
+                                    _ => false,
+                                },
+                                '━' | '┉' | '┅' | '╍' => match c {
+                                    '┛' | '┙' | '┓' | '┑' => true,
+                                    _ => false,
+                                },
+                                '═' => match c {
+                                    '╝' | '╛' | '╗' | '╕' => true,
+                                    _ => false,
+                                },
+                                _ => false,
+                            } =>
+                        {
+                            let start = self.graph.add_node(self.source_location);
+                            let brush = match c {
+                                '╗' | '╖' => Some('║'),
+                                '┓' | '┒' => Some('┃'),
+                                '┐' | '┑' | '╮' | '╕' => Some('│'),
+                                _ => None,
+                            };
+                            if let Some(brush) = brush {
+                                self.ports.push((
+                                    self.visible_location,
+                                    start,
+                                    self.source_location,
+                                    Edge(None, Brush::NorthSouth(brush), None),
+                                ));
+                            }
+                            start
+                        }
+                        _ => {
+                            let mut source_location = self.source_location.clone();
+                            source_location.column -= 1;
+                            self.graph.add_node(source_location)
+                        }
+                    };
                     self.graph.add_edge(start, end, edge);
                     Tx::Initial
                 }
             },
+        };
+    }
+
+    fn start() -> Self {
+        State {
+            graph: UnGraphMap::new(),
+            ports: Vec::new(),
+            source_location: LineColumn { line: 1, column: 0 },
+            visible_location: LineColumn { line: 1, column: 0 },
+            tx: Tx::Initial,
         }
     }
 
@@ -199,13 +302,7 @@ impl FromStr for Graph {
     type Err = Error;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        let mut state = &mut State {
-            graph: UnGraphMap::new(),
-            ports: Vec::new(),
-            source_location: LineColumn { line: 1, column: 0 },
-            visible_location: LineColumn { line: 1, column: 0 },
-            tx: Tx::Initial,
-        };
+        let mut state = &mut State::start();
 
         for c in input.chars() {
             if !is_combining_mark(c) {
@@ -225,6 +322,7 @@ impl FromStr for Graph {
                 state.source_location.column += 1;
             }
         }
+
         state.finish();
 
         Ok(Graph(state.graph.to_owned()))
