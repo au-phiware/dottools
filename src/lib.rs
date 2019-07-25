@@ -147,17 +147,23 @@ impl State {
                     && match brush {
                         Brush::NorthSouth(brush) => match brush {
                             '│' | '┊' | '┆' | '╎' => match c {
-                                '└' | '╘' | '╰' | '┕' | '┘' | '╛' | '╯' | '┙' => {
-                                    true
-                                }
+                                '└' | '╘' | '╰' | '┕' | '┘' | '╛' | '╯' | '┙'
+                                | '┴' | '┵' | '┶' | '┷' | '╧' | '╵' | '├' | '┝'
+                                | '┟' | '┢' | '┤' | '┥' | '┧' | '┪' | '╞' | '╡'
+                                | '┼' | '┽' | '┾' | '┿' | '╁' | '╅' | '╆' | '╈'
+                                | '╪' | '╽' => true,
                                 _ => false,
                             },
                             '┃' | '┋' | '┇' | '╏' => match c {
-                                '┗' | '┖' | '┛' | '┚' => true,
+                                '┗' | '┖' | '┛' | '┚' | '┸' | '┹' | '┺' | '┻'
+                                | '╹' | '┞' | '┠' | '┡' | '┣' | '┦' | '┨' | '┩'
+                                | '┫' | '╀' | '╂' | '╃' | '╄' | '╇' | '╉' | '╊'
+                                | '╋' | '╿' => true,
                                 _ => false,
                             },
                             '║' => match c {
-                                '╚' | '╙' | '╝' | '╜' => true,
+                                '╚' | '╙' | '╝' | '╜' | '╨' | '╩' | '╟' | '╠'
+                                | '╢' | '╣' | '╫' | '╬' => true,
                                 _ => false,
                             },
                             _ => false,
@@ -166,6 +172,24 @@ impl State {
                     }
                 {
                     self.graph.add_edge(start, self.source_location, edge);
+                    if let Some(brush) = match c {
+                        '├' | '┝' | '┤' | '┥' | '╞' | '╡' | '┼' | '┽' | '┾'
+                        | '┿' | '╪' | '┞' | '┡' | '┦' | '┩' | '╀' | '╃' | '╄'
+                        | '╇' | '╿' => Some('│'),
+                        '┟' | '┢' | '┧' | '┪' | '╁' | '╅' | '╆' | '╈' | '╽'
+                        | '┠' | '┣' | '┨' | '┫' | '╂' | '╉' | '╊' | '╋' => {
+                            Some('┃')
+                        }
+                        '╟' | '╠' | '╢' | '╣' | '╫' | '╬' => Some('║'),
+                        _ => None,
+                    } {
+                        self.ports.push((
+                            self.visible_location,
+                            self.source_location,
+                            self.source_location,
+                            Edge(None, Brush::NorthSouth(brush), None),
+                        ));
+                    }
                 } else {
                     self.ports.push((location, start, end, edge));
                 }
@@ -195,6 +219,58 @@ impl State {
                         Edge(None, Brush::NorthSouth(c), None),
                     ));
                     Tx::Initial
+                }
+                '┘' | '╜' | '╯' | '┚' | '┐' | '╖' | '╮' | '┒' | '┛' | '┙'
+                | '┓' | '┑' | '╝' | '╛' | '╗' | '╕' | '┴' | '┵' | '┶' | '┷'
+                | '╧' | '┤' | '┥' | '┧' | '┪' | '╡' | '┼' | '┽' | '┾' | '┿'
+                | '╁' | '╅' | '╆' | '╈' | '╪' | '┸' | '┹' | '┺' | '┻' | '┦'
+                | '┨' | '┩' | '┫' | '╀' | '╂' | '╃' | '╄' | '╇' | '╉' | '╊'
+                | '╋' | '╨' | '╩' | '╢' | '╣' | '╫' | '╬' => {
+                    let brush = match c {
+                        '┛' | '┙' | '┓' | '┑' | '┵' | '┷' | '┥' | '┪' | '┽'
+                        | '┿' | '╅' | '╈' | '┹' | '┻' | '┩' | '┫' | '╃' | '╇'
+                        | '╉' | '╋' => '━',
+                        '╝' | '╛' | '╗' | '╕' | '╧' | '╡' | '╪' | '╩' | '╣'
+                        | '╬' => '═',
+                        _ => '─',
+                    };
+                    self.graph.add_edge(
+                        self.source_location,
+                        self.source_location,
+                        Edge(None, Brush::EastWest(brush), None),
+                    );
+                    if let Some(brush) = match c {
+                        '┐' | '╮' | '┑' | '╕' | '┤' | '┥' | '╡' | '┼' | '┽'
+                        | '┾' | '┿' | '╪' | '┦' | '┩' | '╀' | '╃' | '╄' | '╇' => {
+                            Some('│')
+                        }
+                        '┓' | '┒' | '┧' | '┪' | '╁' | '╅' | '╆' | '╈' | '┨'
+                        | '┫' | '╂' | '╉' | '╊' | '╋' => Some('┃'),
+                        '╗' | '╖' | '╢' | '╣' | '╫' | '╬' => Some('║'),
+                        _ => None,
+                    } {
+                        self.ports.push((
+                            self.visible_location,
+                            self.source_location,
+                            self.source_location,
+                            Edge(None, Brush::NorthSouth(brush), None),
+                        ));
+                    }
+                    match match c {
+                        '┼' | '┽' | '┴' | '┵' | '╁' | '╅' | '┸' | '┹' | '╀'
+                        | '╂' | '╃' | '╉' | '╨' | '╫' => Some('─'),
+                        '╋' | '┶' | '┷' | '┾' | '┿' | '╆' | '╈' | '┺' | '┻'
+                        | '╄' | '╇' | '╊' => Some('━'),
+                        '╬' | '╩' | '╧' | '╪' => Some('═'),
+                        _ => None,
+                    } {
+                        Some(brush) => {
+                            let start = self.graph.add_node(self.source_location.clone());
+                            let edge = Edge(None, Brush::EastWest(brush), None);
+                            Tx::Build { start, edge }
+                        }
+                        _ => Tx::Initial,
+                    }
                 }
                 '┌' | '╔' | '┏' | '╒' | '╓' | '╭' | '┍' | '┎' => {
                     let start = self.graph.add_node(self.source_location.clone());
@@ -237,15 +313,20 @@ impl State {
                             if match brush {
                                 '─' | '┈' | '┄' | '╌' => match c {
                                     '┘' | '╜' | '╯' | '┚' | '┐' | '╖' | '╮'
-                                    | '┒' => true,
+                                    | '┒' | '┴' | '┶' | '┤' | '┧' | '┼' | '┾'
+                                    | '╁' | '╆' | '┸' | '┺' | '┦' | '┨' | '╀'
+                                    | '╂' | '╄' | '╊' | '╨' | '╢' | '╫' => true,
                                     _ => false,
                                 },
                                 '━' | '┉' | '┅' | '╍' => match c {
-                                    '┛' | '┙' | '┓' | '┑' => true,
+                                    '┛' | '┙' | '┓' | '┑' | '┵' | '┷' | '┥'
+                                    | '┪' | '┽' | '┿' | '╅' | '╈' | '┹' | '┻'
+                                    | '┩' | '┫' | '╃' | '╇' | '╉' | '╋' => true,
                                     _ => false,
                                 },
                                 '═' => match c {
-                                    '╝' | '╛' | '╗' | '╕' => true,
+                                    '╝' | '╛' | '╗' | '╕' | '╧' | '╡' | '╪'
+                                    | '╩' | '╣' | '╬' => true,
                                     _ => false,
                                 },
                                 _ => false,
@@ -253,9 +334,12 @@ impl State {
                         {
                             let start = self.graph.add_node(self.source_location);
                             let brush = match c {
-                                '╗' | '╖' => Some('║'),
-                                '┓' | '┒' => Some('┃'),
-                                '┐' | '┑' | '╮' | '╕' => Some('│'),
+                                '┐' | '┑' | '╮' | '╕' | '┤' | '┥' | '╡' | '┼'
+                                | '┽' | '┾' | '┿' | '╪' | '┦' | '┩' | '╀' | '╃'
+                                | '╄' | '╇' => Some('│'),
+                                '╗' | '╖' | '╢' | '╣' | '╫' | '╬' => Some('║'),
+                                '┓' | '┒' | '┧' | '┪' | '╁' | '╅' | '╆' | '╈'
+                                | '┨' | '┫' | '╂' | '╉' | '╊' | '╋' => Some('┃'),
                                 _ => None,
                             };
                             if let Some(brush) = brush {
@@ -275,7 +359,20 @@ impl State {
                         }
                     };
                     self.graph.add_edge(start, end, edge);
-                    Tx::Initial
+                    match match c {
+                        '┼' | '┴' | '┵' | '┽' | '╁' | '╅' | '┸' | '┹' | '╀'
+                        | '╂' | '╃' | '╉' | '╨' | '╫' => Some('─'),
+                        '╋' | '┶' | '┷' | '┾' | '┿' | '╆' | '╈' | '┺' | '┻'
+                        | '╄' | '╇' | '╊' => Some('━'),
+                        '╬' | '╧' | '╪' | '╩' => Some('═'),
+                        _ => None,
+                    } {
+                        Some(brush) => Tx::Build {
+                            start: self.source_location,
+                            edge: Edge(None, Brush::EastWest(brush), None),
+                        },
+                        None => Tx::Initial,
+                    }
                 }
             },
         };
