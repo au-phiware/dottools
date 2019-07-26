@@ -358,17 +358,6 @@ mod parse {
                 (
                     LineColumn {
                         line: 3,
-                        column: 15
-                    },
-                    LineColumn {
-                        line: 3,
-                        column: 16
-                    },
-                    Edge(None, Brush::EastWest('─'), None),
-                ),
-                (
-                    LineColumn {
-                        line: 3,
                         column: 13
                     },
                     LineColumn {
@@ -376,6 +365,17 @@ mod parse {
                         column: 13
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 15
+                    },
+                    LineColumn {
+                        line: 3,
+                        column: 16
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     LineColumn {
@@ -459,17 +459,6 @@ mod parse {
                 (
                     LineColumn {
                         line: 3,
-                        column: 15
-                    },
-                    LineColumn {
-                        line: 3,
-                        column: 16
-                    },
-                    Edge(None, Brush::EastWest('─'), None),
-                ),
-                (
-                    LineColumn {
-                        line: 3,
                         column: 13
                     },
                     LineColumn {
@@ -477,6 +466,17 @@ mod parse {
                         column: 13
                     },
                     Edge(None, Brush::NorthSouth('┃'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 15
+                    },
+                    LineColumn {
+                        line: 3,
+                        column: 16
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     LineColumn {
