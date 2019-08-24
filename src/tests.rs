@@ -42,6 +42,23 @@ mod parse {
         );
 
         parse!(
+            multi_edge,
+            "──  ───",
+            [
+                (
+                    LineColumn { line: 1, column: 0 },
+                    LineColumn { line: 1, column: 1 },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    LineColumn { line: 1, column: 4 },
+                    LineColumn { line: 1, column: 6 },
+                    Edge(None, Brush::EastWest('─'), None),
+                )
+            ]
+        );
+
+        parse!(
             multi_line,
             "──\n───",
             [
@@ -65,6 +82,26 @@ mod parse {
         parse!(
             short,
             "|\n\n",
+            [(
+                LineColumn { line: 1, column: 0 },
+                LineColumn { line: 1, column: 0 },
+                Edge(None, Brush::NorthSouth('|'), None),
+            )]
+        );
+
+        parse!(
+            short_single_line,
+            "|\n",
+            [(
+                LineColumn { line: 1, column: 0 },
+                LineColumn { line: 1, column: 0 },
+                Edge(None, Brush::NorthSouth('|'), None),
+            )]
+        );
+
+        parse!(
+            short_no_newline,
+            "|",
             [(
                 LineColumn { line: 1, column: 0 },
                 LineColumn { line: 1, column: 0 },
@@ -97,6 +134,29 @@ mod parse {
                     Edge(None, Brush::NorthSouth('│'), None),
                 )
             ]
+        );
+    }
+
+    mod diagonal {
+        use crate::{Brush, Edge, Graph, LineColumn};
+
+        parse!(
+            backslash,
+            "╲\n ╲\n  ╲",
+            [(
+                LineColumn { line: 1, column: 0 },
+                LineColumn { line: 3, column: 2 },
+                Edge(None, Brush::NorthWestSouthEast('╲'), None),
+            )]
+        );
+        parse!(
+            forwardslash,
+            "  /\n /\n/",
+            [(
+                LineColumn { line: 1, column: 2 },
+                LineColumn { line: 3, column: 0 },
+                Edge(None, Brush::NorthEastSouthWest('/'), None),
+            )]
         );
     }
 
@@ -154,6 +214,61 @@ mod parse {
                         column: 13
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
+                )
+            ]
+        );
+
+        parse!(
+            diagonal_cross,
+            "
+            ╲ ╱
+             ╳
+            ╱ ╲
+            ",
+            [
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 12
+                    },
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('╲'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 2,
+                        column: 14
+                    },
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    Edge(None, Brush::NorthEastSouthWest('╱'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    LineColumn {
+                        line: 4,
+                        column: 12
+                    },
+                    Edge(None, Brush::NorthEastSouthWest('╱'), None),
+                ),
+                (
+                    LineColumn {
+                        line: 3,
+                        column: 13
+                    },
+                    LineColumn {
+                        line: 4,
+                        column: 14
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('╲'), None),
                 )
             ]
         );
