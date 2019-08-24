@@ -4,9 +4,7 @@ macro_rules! parse {
         fn $name() {
             let g = $input.parse::<Graph>().unwrap();
             println!("{:?}", g);
-            let mut g = g
-                .all_edges()
-                .collect::<Vec<(LineColumn, LineColumn, &Edge)>>();
+            let mut g = g.all_edges().collect::<Vec<(Location, Location, &Edge)>>();
             g.sort_by_key(|e| (e.0, e.1));
             println!("{:?}", g);
             assert!(match &g[..] {
@@ -19,14 +17,20 @@ macro_rules! parse {
 
 mod parse {
     mod horizontal {
-        use crate::{Brush, Edge, Graph, LineColumn};
+        use crate::{Brush, Edge, Graph, LineColumn, Location};
 
         parse!(
             short,
             "-",
             [(
-                LineColumn { line: 1, column: 0 },
-                LineColumn { line: 1, column: 0 },
+                Location {
+                    source: LineColumn { line: 1, column: 0 },
+                    visual: LineColumn { line: 1, column: 0 }
+                },
+                Location {
+                    source: LineColumn { line: 1, column: 0 },
+                    visual: LineColumn { line: 1, column: 0 }
+                },
                 Edge(None, Brush::EastWest('-'), None),
             )]
         );
@@ -35,8 +39,14 @@ mod parse {
             single_line,
             "─────",
             [(
-                LineColumn { line: 1, column: 0 },
-                LineColumn { line: 1, column: 4 },
+                Location {
+                    source: LineColumn { line: 1, column: 0 },
+                    visual: LineColumn { line: 1, column: 0 }
+                },
+                Location {
+                    source: LineColumn { line: 1, column: 4 },
+                    visual: LineColumn { line: 1, column: 4 }
+                },
                 Edge(None, Brush::EastWest('─'), None),
             )]
         );
@@ -46,13 +56,25 @@ mod parse {
             "──  ───",
             [
                 (
-                    LineColumn { line: 1, column: 0 },
-                    LineColumn { line: 1, column: 1 },
+                    Location {
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 }
+                    },
+                    Location {
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 }
+                    },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    LineColumn { line: 1, column: 4 },
-                    LineColumn { line: 1, column: 6 },
+                    Location {
+                        source: LineColumn { line: 1, column: 4 },
+                        visual: LineColumn { line: 1, column: 4 }
+                    },
+                    Location {
+                        source: LineColumn { line: 1, column: 6 },
+                        visual: LineColumn { line: 1, column: 6 }
+                    },
                     Edge(None, Brush::EastWest('─'), None),
                 )
             ]
@@ -63,13 +85,25 @@ mod parse {
             "──\n───",
             [
                 (
-                    LineColumn { line: 1, column: 0 },
-                    LineColumn { line: 1, column: 1 },
+                    Location {
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 }
+                    },
+                    Location {
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 }
+                    },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    LineColumn { line: 2, column: 0 },
-                    LineColumn { line: 2, column: 2 },
+                    Location {
+                        source: LineColumn { line: 2, column: 0 },
+                        visual: LineColumn { line: 2, column: 0 }
+                    },
+                    Location {
+                        source: LineColumn { line: 2, column: 2 },
+                        visual: LineColumn { line: 2, column: 2 }
+                    },
                     Edge(None, Brush::EastWest('─'), None),
                 )
             ]
@@ -77,14 +111,20 @@ mod parse {
     }
 
     mod vertical {
-        use crate::{Brush, Edge, Graph, LineColumn};
+        use crate::{Brush, Edge, Graph, LineColumn, Location};
 
         parse!(
             short,
             "|\n\n",
             [(
-                LineColumn { line: 1, column: 0 },
-                LineColumn { line: 1, column: 0 },
+                Location {
+                    source: LineColumn { line: 1, column: 0 },
+                    visual: LineColumn { line: 1, column: 0 }
+                },
+                Location {
+                    source: LineColumn { line: 1, column: 0 },
+                    visual: LineColumn { line: 1, column: 0 }
+                },
                 Edge(None, Brush::NorthSouth('|'), None),
             )]
         );
@@ -93,8 +133,14 @@ mod parse {
             short_single_line,
             "|\n",
             [(
-                LineColumn { line: 1, column: 0 },
-                LineColumn { line: 1, column: 0 },
+                Location {
+                    source: LineColumn { line: 1, column: 0 },
+                    visual: LineColumn { line: 1, column: 0 }
+                },
+                Location {
+                    source: LineColumn { line: 1, column: 0 },
+                    visual: LineColumn { line: 1, column: 0 }
+                },
                 Edge(None, Brush::NorthSouth('|'), None),
             )]
         );
@@ -103,8 +149,14 @@ mod parse {
             short_no_newline,
             "|",
             [(
-                LineColumn { line: 1, column: 0 },
-                LineColumn { line: 1, column: 0 },
+                Location {
+                    source: LineColumn { line: 1, column: 0 },
+                    visual: LineColumn { line: 1, column: 0 }
+                },
+                Location {
+                    source: LineColumn { line: 1, column: 0 },
+                    visual: LineColumn { line: 1, column: 0 }
+                },
                 Edge(None, Brush::NorthSouth('|'), None),
             )]
         );
@@ -113,8 +165,14 @@ mod parse {
             single_line,
             "│\n│\n│\n",
             [(
-                LineColumn { line: 1, column: 0 },
-                LineColumn { line: 3, column: 0 },
+                Location {
+                    source: LineColumn { line: 1, column: 0 },
+                    visual: LineColumn { line: 1, column: 0 }
+                },
+                Location {
+                    source: LineColumn { line: 3, column: 0 },
+                    visual: LineColumn { line: 3, column: 0 }
+                },
                 Edge(None, Brush::NorthSouth('│'), None),
             )]
         );
@@ -124,13 +182,25 @@ mod parse {
             "││\n││\n│\n",
             [
                 (
-                    LineColumn { line: 1, column: 0 },
-                    LineColumn { line: 3, column: 0 },
+                    Location {
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 }
+                    },
+                    Location {
+                        source: LineColumn { line: 3, column: 0 },
+                        visual: LineColumn { line: 3, column: 0 }
+                    },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    LineColumn { line: 1, column: 1 },
-                    LineColumn { line: 2, column: 1 },
+                    Location {
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 }
+                    },
+                    Location {
+                        source: LineColumn { line: 2, column: 1 },
+                        visual: LineColumn { line: 2, column: 1 }
+                    },
                     Edge(None, Brush::NorthSouth('│'), None),
                 )
             ]
@@ -138,14 +208,20 @@ mod parse {
     }
 
     mod diagonal {
-        use crate::{Brush, Edge, Graph, LineColumn};
+        use crate::{Brush, Edge, Graph, LineColumn, Location};
 
         parse!(
             backslash,
             "╲\n ╲\n  ╲",
             [(
-                LineColumn { line: 1, column: 0 },
-                LineColumn { line: 3, column: 2 },
+                Location {
+                    source: LineColumn { line: 1, column: 0 },
+                    visual: LineColumn { line: 1, column: 0 }
+                },
+                Location {
+                    source: LineColumn { line: 3, column: 2 },
+                    visual: LineColumn { line: 3, column: 2 }
+                },
                 Edge(None, Brush::NorthWestSouthEast('╲'), None),
             )]
         );
@@ -153,15 +229,21 @@ mod parse {
             forwardslash,
             "  /\n /\n/",
             [(
-                LineColumn { line: 1, column: 2 },
-                LineColumn { line: 3, column: 0 },
+                Location {
+                    source: LineColumn { line: 1, column: 2 },
+                    visual: LineColumn { line: 1, column: 2 }
+                },
+                Location {
+                    source: LineColumn { line: 3, column: 0 },
+                    visual: LineColumn { line: 3, column: 0 }
+                },
                 Edge(None, Brush::NorthEastSouthWest('/'), None),
             )]
         );
     }
 
     mod node {
-        use crate::{Brush, Edge, Graph, LineColumn};
+        use crate::{Brush, Edge, Graph, LineColumn, Location};
 
         parse!(
             simple_cross,
@@ -172,46 +254,94 @@ mod parse {
             ",
             [
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 13
+                        }
                     },
-                    LineColumn {
-                        line: 3,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 3,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 12
+                        }
                     },
-                    LineColumn {
-                        line: 3,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 3,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
-                    LineColumn {
-                        line: 3,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 14
+                        }
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 3,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
-                    LineColumn {
-                        line: 4,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 13
+                        }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 )
@@ -227,46 +357,94 @@ mod parse {
             ",
             [
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 12
+                        }
                     },
-                    LineColumn {
-                        line: 3,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
                     Edge(None, Brush::NorthWestSouthEast('╲'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 14
+                        }
                     },
-                    LineColumn {
-                        line: 3,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
                     Edge(None, Brush::NorthEastSouthWest('╱'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 3,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
-                    LineColumn {
-                        line: 4,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 12
+                        }
                     },
                     Edge(None, Brush::NorthEastSouthWest('╱'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 3,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
-                    LineColumn {
-                        line: 4,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 14
+                        }
                     },
                     Edge(None, Brush::NorthWestSouthEast('╲'), None),
                 )
@@ -282,46 +460,94 @@ mod parse {
             ",
             [
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 12
+                        }
                     },
-                    LineColumn {
-                        line: 2,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 14
+                        }
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 12
+                        }
                     },
-                    LineColumn {
-                        line: 4,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 12
+                        }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 14
+                        }
                     },
-                    LineColumn {
-                        line: 4,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 14
+                        }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 4,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 12
+                        }
                     },
-                    LineColumn {
-                        line: 4,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 14
+                        }
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 )
@@ -337,46 +563,94 @@ mod parse {
             ",
             [
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 12
+                        }
                     },
-                    LineColumn {
-                        line: 2,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 14
+                        }
                     },
                     Edge(None, Brush::EastWest('━'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 12
+                        }
                     },
-                    LineColumn {
-                        line: 4,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 12
+                        }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 14
+                        }
                     },
-                    LineColumn {
-                        line: 4,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 14
+                        }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 4,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 12
+                        }
                     },
-                    LineColumn {
-                        line: 4,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 14
+                        }
                     },
                     Edge(None, Brush::EastWest('═'), None),
                 )
@@ -392,46 +666,94 @@ mod parse {
             ",
             [
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 12
+                        }
                     },
-                    LineColumn {
-                        line: 2,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 14
+                        }
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 12
+                        }
                     },
-                    LineColumn {
-                        line: 4,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 12
+                        }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 14
+                        }
                     },
-                    LineColumn {
-                        line: 4,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 14
+                        }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 4,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 12
+                        }
                     },
-                    LineColumn {
-                        line: 4,
-                        column: 14
+                    Location {
+                        source: LineColumn {
+                            line: 4,
+                            column: 14
+                        },
+                        visual: LineColumn {
+                            line: 4,
+                            column: 14
+                        }
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 )
@@ -449,90 +771,186 @@ mod parse {
             ",
             [
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 13
+                        }
                     },
-                    LineColumn {
-                        line: 3,
-                        column: 13
-                    },
-                    Edge(None, Brush::NorthSouth('│'), None),
-                ),
-                (
-                    LineColumn {
-                        line: 3,
-                        column: 13
-                    },
-                    LineColumn {
-                        line: 3,
-                        column: 15
-                    },
-                    Edge(None, Brush::EastWest('─'), None),
-                ),
-                (
-                    LineColumn {
-                        line: 3,
-                        column: 13
-                    },
-                    LineColumn {
-                        line: 5,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 3,
-                        column: 15
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
-                    LineColumn {
-                        line: 3,
-                        column: 16
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 15
+                        }
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 3,
-                        column: 15
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
-                    LineColumn {
-                        line: 5,
-                        column: 15
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 13
+                        }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 5,
-                        column: 12
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 15
+                        }
                     },
-                    LineColumn {
-                        line: 5,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 16
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 16
+                        }
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 5,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 15
+                        }
                     },
-                    LineColumn {
-                        line: 5,
-                        column: 15
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 15
+                        }
+                    },
+                    Edge(None, Brush::NorthSouth('│'), None),
+                ),
+                (
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 12
+                        }
+                    },
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 13
+                        }
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 5,
-                        column: 15
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 13
+                        }
                     },
-                    LineColumn {
-                        line: 6,
-                        column: 15
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 15
+                        }
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 15
+                        }
+                    },
+                    Location {
+                        source: LineColumn {
+                            line: 6,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 6,
+                            column: 15
+                        }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 )
@@ -550,90 +968,186 @@ mod parse {
             ",
             [
                 (
-                    LineColumn {
-                        line: 2,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 2,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 2,
+                            column: 13
+                        }
                     },
-                    LineColumn {
-                        line: 3,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 3,
-                        column: 13
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
-                    LineColumn {
-                        line: 3,
-                        column: 15
-                    },
-                    Edge(None, Brush::EastWest('━'), None),
-                ),
-                (
-                    LineColumn {
-                        line: 3,
-                        column: 13
-                    },
-                    LineColumn {
-                        line: 5,
-                        column: 13
-                    },
-                    Edge(None, Brush::NorthSouth('┃'), None),
-                ),
-                (
-                    LineColumn {
-                        line: 3,
-                        column: 15
-                    },
-                    LineColumn {
-                        line: 3,
-                        column: 16
-                    },
-                    Edge(None, Brush::EastWest('─'), None),
-                ),
-                (
-                    LineColumn {
-                        line: 3,
-                        column: 15
-                    },
-                    LineColumn {
-                        line: 5,
-                        column: 15
-                    },
-                    Edge(None, Brush::NorthSouth('┃'), None),
-                ),
-                (
-                    LineColumn {
-                        line: 5,
-                        column: 12
-                    },
-                    LineColumn {
-                        line: 5,
-                        column: 13
-                    },
-                    Edge(None, Brush::EastWest('─'), None),
-                ),
-                (
-                    LineColumn {
-                        line: 5,
-                        column: 13
-                    },
-                    LineColumn {
-                        line: 5,
-                        column: 15
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 15
+                        }
                     },
                     Edge(None, Brush::EastWest('━'), None),
                 ),
                 (
-                    LineColumn {
-                        line: 5,
-                        column: 15
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 13
+                        }
                     },
-                    LineColumn {
-                        line: 6,
-                        column: 15
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 13
+                        }
+                    },
+                    Edge(None, Brush::NorthSouth('┃'), None),
+                ),
+                (
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 15
+                        }
+                    },
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 16
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 16
+                        }
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    Location {
+                        source: LineColumn {
+                            line: 3,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 3,
+                            column: 15
+                        }
+                    },
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 15
+                        }
+                    },
+                    Edge(None, Brush::NorthSouth('┃'), None),
+                ),
+                (
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 12
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 12
+                        }
+                    },
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 13
+                        }
+                    },
+                    Edge(None, Brush::EastWest('─'), None),
+                ),
+                (
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 13
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 13
+                        }
+                    },
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 15
+                        }
+                    },
+                    Edge(None, Brush::EastWest('━'), None),
+                ),
+                (
+                    Location {
+                        source: LineColumn {
+                            line: 5,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 5,
+                            column: 15
+                        }
+                    },
+                    Location {
+                        source: LineColumn {
+                            line: 6,
+                            column: 15
+                        },
+                        visual: LineColumn {
+                            line: 6,
+                            column: 15
+                        }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 )
