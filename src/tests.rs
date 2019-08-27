@@ -2,32 +2,36 @@ macro_rules! parse {
     ($name:ident, $input:expr, $graph:pat) => {
         #[test]
         fn $name() {
-            let g = $input.parse::<Graph>().unwrap();
+            let input = $input;
+            let g = input.parse::<Graph>().unwrap();
             println!("{:?}", g);
-            let mut g = g.all_edges().collect::<Vec<(Location, Location, &Edge)>>();
-            g.sort_by_key(|e| (e.0, e.1));
-            println!("{:?}", g);
-            assert!(match &g[..] {
+            let mut v = g.all_edges().collect::<Vec<(Node, Node, &Edge)>>();
+            v.sort_by_key(|e| (e.0, e.1));
+            println!("{:?}", v);
+            assert!(match &v[..] {
                 $graph => true,
                 _ => false,
             });
+            assert_eq!(input.trim_end(), g.to_string());
         }
     };
 }
 
 mod parse {
     mod horizontal {
-        use crate::{Brush, Edge, Graph, LineColumn, Location};
+        use crate::{Brush, Edge, Graph, LineColumn, Node};
 
         parse!(
             short,
             "-",
             [(
-                Location {
+                Node {
+                    character: '-',
                     source: LineColumn { line: 1, column: 0 },
                     visual: LineColumn { line: 1, column: 0 }
                 },
-                Location {
+                Node {
+                    character: '-',
                     source: LineColumn { line: 1, column: 0 },
                     visual: LineColumn { line: 1, column: 0 }
                 },
@@ -39,11 +43,13 @@ mod parse {
             single_line,
             "─────",
             [(
-                Location {
+                Node {
+                    character: '─',
                     source: LineColumn { line: 1, column: 0 },
                     visual: LineColumn { line: 1, column: 0 }
                 },
-                Location {
+                Node {
+                    character: '─',
                     source: LineColumn { line: 1, column: 4 },
                     visual: LineColumn { line: 1, column: 4 }
                 },
@@ -56,22 +62,26 @@ mod parse {
             "──  ───",
             [
                 (
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn { line: 1, column: 0 },
                         visual: LineColumn { line: 1, column: 0 }
                     },
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn { line: 1, column: 1 },
                         visual: LineColumn { line: 1, column: 1 }
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn { line: 1, column: 4 },
                         visual: LineColumn { line: 1, column: 4 }
                     },
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn { line: 1, column: 6 },
                         visual: LineColumn { line: 1, column: 6 }
                     },
@@ -85,22 +95,26 @@ mod parse {
             "──\n───",
             [
                 (
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn { line: 1, column: 0 },
                         visual: LineColumn { line: 1, column: 0 }
                     },
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn { line: 1, column: 1 },
                         visual: LineColumn { line: 1, column: 1 }
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn { line: 2, column: 0 },
                         visual: LineColumn { line: 2, column: 0 }
                     },
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn { line: 2, column: 2 },
                         visual: LineColumn { line: 2, column: 2 }
                     },
@@ -111,17 +125,19 @@ mod parse {
     }
 
     mod vertical {
-        use crate::{Brush, Edge, Graph, LineColumn, Location};
+        use crate::{Brush, Edge, Graph, LineColumn, Node};
 
         parse!(
             short,
             "|\n\n",
             [(
-                Location {
+                Node {
+                    character: '|',
                     source: LineColumn { line: 1, column: 0 },
                     visual: LineColumn { line: 1, column: 0 }
                 },
-                Location {
+                Node {
+                    character: '|',
                     source: LineColumn { line: 1, column: 0 },
                     visual: LineColumn { line: 1, column: 0 }
                 },
@@ -133,11 +149,13 @@ mod parse {
             short_single_line,
             "|\n",
             [(
-                Location {
+                Node {
+                    character: '|',
                     source: LineColumn { line: 1, column: 0 },
                     visual: LineColumn { line: 1, column: 0 }
                 },
-                Location {
+                Node {
+                    character: '|',
                     source: LineColumn { line: 1, column: 0 },
                     visual: LineColumn { line: 1, column: 0 }
                 },
@@ -149,11 +167,13 @@ mod parse {
             short_no_newline,
             "|",
             [(
-                Location {
+                Node {
+                    character: '|',
                     source: LineColumn { line: 1, column: 0 },
                     visual: LineColumn { line: 1, column: 0 }
                 },
-                Location {
+                Node {
+                    character: '|',
                     source: LineColumn { line: 1, column: 0 },
                     visual: LineColumn { line: 1, column: 0 }
                 },
@@ -165,11 +185,13 @@ mod parse {
             single_line,
             "│\n│\n│\n",
             [(
-                Location {
+                Node {
+                    character: '│',
                     source: LineColumn { line: 1, column: 0 },
                     visual: LineColumn { line: 1, column: 0 }
                 },
-                Location {
+                Node {
+                    character: '│',
                     source: LineColumn { line: 3, column: 0 },
                     visual: LineColumn { line: 3, column: 0 }
                 },
@@ -182,22 +204,26 @@ mod parse {
             "││\n││\n│\n",
             [
                 (
-                    Location {
+                    Node {
+                        character: '│',
                         source: LineColumn { line: 1, column: 0 },
                         visual: LineColumn { line: 1, column: 0 }
                     },
-                    Location {
+                    Node {
+                        character: '│',
                         source: LineColumn { line: 3, column: 0 },
                         visual: LineColumn { line: 3, column: 0 }
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '│',
                         source: LineColumn { line: 1, column: 1 },
                         visual: LineColumn { line: 1, column: 1 }
                     },
-                    Location {
+                    Node {
+                        character: '│',
                         source: LineColumn { line: 2, column: 1 },
                         visual: LineColumn { line: 2, column: 1 }
                     },
@@ -208,17 +234,19 @@ mod parse {
     }
 
     mod diagonal {
-        use crate::{Brush, Edge, Graph, LineColumn, Location};
+        use crate::{Brush, Edge, Graph, LineColumn, Node};
 
         parse!(
             backslash,
             "╲\n ╲\n  ╲",
             [(
-                Location {
+                Node {
+                    character: '╲',
                     source: LineColumn { line: 1, column: 0 },
                     visual: LineColumn { line: 1, column: 0 }
                 },
-                Location {
+                Node {
+                    character: '╲',
                     source: LineColumn { line: 3, column: 2 },
                     visual: LineColumn { line: 3, column: 2 }
                 },
@@ -229,11 +257,13 @@ mod parse {
             forwardslash,
             "  /\n /\n/",
             [(
-                Location {
+                Node {
+                    character: '/',
                     source: LineColumn { line: 1, column: 2 },
                     visual: LineColumn { line: 1, column: 2 }
                 },
-                Location {
+                Node {
+                    character: '/',
                     source: LineColumn { line: 3, column: 0 },
                     visual: LineColumn { line: 3, column: 0 }
                 },
@@ -243,7 +273,7 @@ mod parse {
     }
 
     mod node {
-        use crate::{Brush, Edge, Graph, LineColumn, Location};
+        use crate::{Brush, Edge, Graph, LineColumn, Node};
 
         parse!(
             simple_cross,
@@ -254,7 +284,8 @@ mod parse {
             ",
             [
                 (
-                    Location {
+                    Node {
+                        character: '│',
                         source: LineColumn {
                             line: 2,
                             column: 13
@@ -264,7 +295,8 @@ mod parse {
                             column: 13
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┼',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -277,7 +309,8 @@ mod parse {
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn {
                             line: 3,
                             column: 12
@@ -287,7 +320,8 @@ mod parse {
                             column: 12
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┼',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -300,7 +334,8 @@ mod parse {
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┼',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -310,7 +345,8 @@ mod parse {
                             column: 13
                         }
                     },
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn {
                             line: 3,
                             column: 14
@@ -323,7 +359,8 @@ mod parse {
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┼',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -333,7 +370,8 @@ mod parse {
                             column: 13
                         }
                     },
-                    Location {
+                    Node {
+                        character: '│',
                         source: LineColumn {
                             line: 4,
                             column: 13
@@ -357,7 +395,8 @@ mod parse {
             ",
             [
                 (
-                    Location {
+                    Node {
+                        character: '╲',
                         source: LineColumn {
                             line: 2,
                             column: 12
@@ -367,7 +406,8 @@ mod parse {
                             column: 12
                         }
                     },
-                    Location {
+                    Node {
+                        character: '╳',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -380,7 +420,8 @@ mod parse {
                     Edge(None, Brush::NorthWestSouthEast('╲'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '╱',
                         source: LineColumn {
                             line: 2,
                             column: 14
@@ -390,7 +431,8 @@ mod parse {
                             column: 14
                         }
                     },
-                    Location {
+                    Node {
+                        character: '╳',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -403,7 +445,8 @@ mod parse {
                     Edge(None, Brush::NorthEastSouthWest('╱'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '╳',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -413,7 +456,8 @@ mod parse {
                             column: 13
                         }
                     },
-                    Location {
+                    Node {
+                        character: '╱',
                         source: LineColumn {
                             line: 4,
                             column: 12
@@ -426,7 +470,8 @@ mod parse {
                     Edge(None, Brush::NorthEastSouthWest('╱'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '╳',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -436,7 +481,8 @@ mod parse {
                             column: 13
                         }
                     },
-                    Location {
+                    Node {
+                        character: '╲',
                         source: LineColumn {
                             line: 4,
                             column: 14
@@ -460,7 +506,8 @@ mod parse {
             ",
             [
                 (
-                    Location {
+                    Node {
+                        character: '┌',
                         source: LineColumn {
                             line: 2,
                             column: 12
@@ -470,7 +517,8 @@ mod parse {
                             column: 12
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┐',
                         source: LineColumn {
                             line: 2,
                             column: 14
@@ -483,7 +531,8 @@ mod parse {
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┌',
                         source: LineColumn {
                             line: 2,
                             column: 12
@@ -493,7 +542,8 @@ mod parse {
                             column: 12
                         }
                     },
-                    Location {
+                    Node {
+                        character: '└',
                         source: LineColumn {
                             line: 4,
                             column: 12
@@ -506,7 +556,8 @@ mod parse {
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┐',
                         source: LineColumn {
                             line: 2,
                             column: 14
@@ -516,7 +567,8 @@ mod parse {
                             column: 14
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┘',
                         source: LineColumn {
                             line: 4,
                             column: 14
@@ -529,7 +581,8 @@ mod parse {
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '└',
                         source: LineColumn {
                             line: 4,
                             column: 12
@@ -539,7 +592,8 @@ mod parse {
                             column: 12
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┘',
                         source: LineColumn {
                             line: 4,
                             column: 14
@@ -563,7 +617,8 @@ mod parse {
             ",
             [
                 (
-                    Location {
+                    Node {
+                        character: '┍',
                         source: LineColumn {
                             line: 2,
                             column: 12
@@ -573,7 +628,8 @@ mod parse {
                             column: 12
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┑',
                         source: LineColumn {
                             line: 2,
                             column: 14
@@ -586,7 +642,8 @@ mod parse {
                     Edge(None, Brush::EastWest('━'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┍',
                         source: LineColumn {
                             line: 2,
                             column: 12
@@ -596,7 +653,8 @@ mod parse {
                             column: 12
                         }
                     },
-                    Location {
+                    Node {
+                        character: '╘',
                         source: LineColumn {
                             line: 4,
                             column: 12
@@ -609,7 +667,8 @@ mod parse {
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┑',
                         source: LineColumn {
                             line: 2,
                             column: 14
@@ -619,7 +678,8 @@ mod parse {
                             column: 14
                         }
                     },
-                    Location {
+                    Node {
+                        character: '╛',
                         source: LineColumn {
                             line: 4,
                             column: 14
@@ -632,7 +692,8 @@ mod parse {
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '╘',
                         source: LineColumn {
                             line: 4,
                             column: 12
@@ -642,7 +703,8 @@ mod parse {
                             column: 12
                         }
                     },
-                    Location {
+                    Node {
+                        character: '╛',
                         source: LineColumn {
                             line: 4,
                             column: 14
@@ -666,7 +728,8 @@ mod parse {
             ",
             [
                 (
-                    Location {
+                    Node {
+                        character: '╭',
                         source: LineColumn {
                             line: 2,
                             column: 12
@@ -676,7 +739,8 @@ mod parse {
                             column: 12
                         }
                     },
-                    Location {
+                    Node {
+                        character: '╮',
                         source: LineColumn {
                             line: 2,
                             column: 14
@@ -689,7 +753,8 @@ mod parse {
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '╭',
                         source: LineColumn {
                             line: 2,
                             column: 12
@@ -699,7 +764,8 @@ mod parse {
                             column: 12
                         }
                     },
-                    Location {
+                    Node {
+                        character: '╰',
                         source: LineColumn {
                             line: 4,
                             column: 12
@@ -712,7 +778,8 @@ mod parse {
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '╮',
                         source: LineColumn {
                             line: 2,
                             column: 14
@@ -722,7 +789,8 @@ mod parse {
                             column: 14
                         }
                     },
-                    Location {
+                    Node {
+                        character: '╯',
                         source: LineColumn {
                             line: 4,
                             column: 14
@@ -735,7 +803,8 @@ mod parse {
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '╰',
                         source: LineColumn {
                             line: 4,
                             column: 12
@@ -745,7 +814,8 @@ mod parse {
                             column: 12
                         }
                     },
-                    Location {
+                    Node {
+                        character: '╯',
                         source: LineColumn {
                             line: 4,
                             column: 14
@@ -771,7 +841,8 @@ mod parse {
             ",
             [
                 (
-                    Location {
+                    Node {
+                        character: '│',
                         source: LineColumn {
                             line: 2,
                             column: 13
@@ -781,7 +852,8 @@ mod parse {
                             column: 13
                         }
                     },
-                    Location {
+                    Node {
+                        character: '├',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -794,7 +866,8 @@ mod parse {
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '├',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -804,7 +877,8 @@ mod parse {
                             column: 13
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┬',
                         source: LineColumn {
                             line: 3,
                             column: 15
@@ -817,7 +891,8 @@ mod parse {
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '├',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -827,7 +902,8 @@ mod parse {
                             column: 13
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┴',
                         source: LineColumn {
                             line: 5,
                             column: 13
@@ -840,7 +916,8 @@ mod parse {
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┬',
                         source: LineColumn {
                             line: 3,
                             column: 15
@@ -850,7 +927,8 @@ mod parse {
                             column: 15
                         }
                     },
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn {
                             line: 3,
                             column: 16
@@ -863,7 +941,8 @@ mod parse {
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┬',
                         source: LineColumn {
                             line: 3,
                             column: 15
@@ -873,7 +952,8 @@ mod parse {
                             column: 15
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┤',
                         source: LineColumn {
                             line: 5,
                             column: 15
@@ -886,7 +966,8 @@ mod parse {
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn {
                             line: 5,
                             column: 12
@@ -896,7 +977,8 @@ mod parse {
                             column: 12
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┴',
                         source: LineColumn {
                             line: 5,
                             column: 13
@@ -909,7 +991,8 @@ mod parse {
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┴',
                         source: LineColumn {
                             line: 5,
                             column: 13
@@ -919,7 +1002,8 @@ mod parse {
                             column: 13
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┤',
                         source: LineColumn {
                             line: 5,
                             column: 15
@@ -932,7 +1016,8 @@ mod parse {
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┤',
                         source: LineColumn {
                             line: 5,
                             column: 15
@@ -942,7 +1027,8 @@ mod parse {
                             column: 15
                         }
                     },
-                    Location {
+                    Node {
+                        character: '│',
                         source: LineColumn {
                             line: 6,
                             column: 15
@@ -968,7 +1054,8 @@ mod parse {
             ",
             [
                 (
-                    Location {
+                    Node {
+                        character: '│',
                         source: LineColumn {
                             line: 2,
                             column: 13
@@ -978,7 +1065,8 @@ mod parse {
                             column: 13
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┢',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -991,7 +1079,8 @@ mod parse {
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┢',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -1001,7 +1090,8 @@ mod parse {
                             column: 13
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┱',
                         source: LineColumn {
                             line: 3,
                             column: 15
@@ -1014,7 +1104,8 @@ mod parse {
                     Edge(None, Brush::EastWest('━'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┢',
                         source: LineColumn {
                             line: 3,
                             column: 13
@@ -1024,7 +1115,8 @@ mod parse {
                             column: 13
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┺',
                         source: LineColumn {
                             line: 5,
                             column: 13
@@ -1037,7 +1129,8 @@ mod parse {
                     Edge(None, Brush::NorthSouth('┃'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┱',
                         source: LineColumn {
                             line: 3,
                             column: 15
@@ -1047,7 +1140,8 @@ mod parse {
                             column: 15
                         }
                     },
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn {
                             line: 3,
                             column: 16
@@ -1060,7 +1154,8 @@ mod parse {
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┱',
                         source: LineColumn {
                             line: 3,
                             column: 15
@@ -1070,7 +1165,8 @@ mod parse {
                             column: 15
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┩',
                         source: LineColumn {
                             line: 5,
                             column: 15
@@ -1083,7 +1179,8 @@ mod parse {
                     Edge(None, Brush::NorthSouth('┃'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '─',
                         source: LineColumn {
                             line: 5,
                             column: 12
@@ -1093,7 +1190,8 @@ mod parse {
                             column: 12
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┺',
                         source: LineColumn {
                             line: 5,
                             column: 13
@@ -1106,7 +1204,8 @@ mod parse {
                     Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┺',
                         source: LineColumn {
                             line: 5,
                             column: 13
@@ -1116,7 +1215,8 @@ mod parse {
                             column: 13
                         }
                     },
-                    Location {
+                    Node {
+                        character: '┩',
                         source: LineColumn {
                             line: 5,
                             column: 15
@@ -1129,7 +1229,8 @@ mod parse {
                     Edge(None, Brush::EastWest('━'), None),
                 ),
                 (
-                    Location {
+                    Node {
+                        character: '┩',
                         source: LineColumn {
                             line: 5,
                             column: 15
@@ -1139,7 +1240,8 @@ mod parse {
                             column: 15
                         }
                     },
-                    Location {
+                    Node {
+                        character: '│',
                         source: LineColumn {
                             line: 6,
                             column: 15

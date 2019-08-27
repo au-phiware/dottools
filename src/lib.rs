@@ -9,6 +9,7 @@ mod tests;
 use petgraph::graphmap::UnGraphMap;
 use std::cmp::Ordering;
 use std::fmt;
+use std::iter::repeat;
 use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
 use unicode_normalization::char::is_combining_mark;
@@ -25,7 +26,8 @@ pub struct LineColumn {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub struct Location {
+pub struct Node {
+    character: char,
     source: LineColumn,
     visual: LineColumn,
 }
@@ -42,7 +44,7 @@ pub enum Brush {
 pub struct Edge(Option<char>, Brush, Option<char>);
 
 #[derive(Debug)]
-pub struct Graph(UnGraphMap<Location, Edge>);
+pub struct Graph(UnGraphMap<Node, Edge>);
 
 /*
 "  ┌──
@@ -102,20 +104,20 @@ impl PartialOrd for LineColumn {
     }
 }
 
-impl Ord for Location {
+impl Ord for Node {
     fn cmp(&self, other: &Self) -> Ordering {
         self.source.cmp(&other.source)
     }
 }
 
-impl PartialOrd for Location {
+impl PartialOrd for Node {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.source.partial_cmp(&other.source)
     }
 }
 
 impl Deref for Graph {
-    type Target = UnGraphMap<Location, Edge>;
+    type Target = UnGraphMap<Node, Edge>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -131,26 +133,27 @@ impl DerefMut for Graph {
 #[derive(Debug, Copy, Clone)]
 enum Tx {
     Initial,
-    Build { start: Location, edge: Edge },
+    Build { start: Node, edge: Edge },
 }
 
 #[derive(Debug, Copy, Clone)]
 struct Port {
-    start: Location,
-    end: Location,
+    start: Node,
+    end: Node,
     edge: Edge,
 }
 
 struct State {
-    graph: UnGraphMap<Location, Edge>,
+    graph: UnGraphMap<Node, Edge>,
     ports: Vec<Port>,
-    location: Location,
-    previous_location: Location,
+    location: Node,
+    previous_location: Node,
     tx: Tx,
 }
 
 impl State {
-    fn next(&mut self, c: char) {
+    fn next(&mut self) {
+        let c = self.location.character;
         let LineColumn { line, column } = self.location.visual;
         let ports = self.ports.to_owned();
         let mut pass = false;
@@ -478,11 +481,13 @@ impl State {
         State {
             graph: UnGraphMap::new(),
             ports: Vec::new(),
-            location: Location {
+            location: Node {
+                character: '\u{0000}',
                 source: LineColumn { line: 1, column: 0 },
                 visual: LineColumn { line: 1, column: 0 },
             },
-            previous_location: Location {
+            previous_location: Node {
+                character: '\u{0000}',
                 source: LineColumn { line: 0, column: 0 },
                 visual: LineColumn { line: 0, column: 0 },
             },
@@ -491,7 +496,7 @@ impl State {
     }
 
     fn finish(&mut self) {
-        self.next('\n');
+        self.next();
     }
 }
 
@@ -502,9 +507,10 @@ impl FromStr for Graph {
         let mut state = &mut State::start();
 
         for c in input.chars() {
+            state.location.character = c;
             let is_combining_mark = is_combining_mark(c);
             if !is_combining_mark {
-                state.next(c);
+                state.next();
             }
             state.previous_location = state.location;
             if !is_combining_mark {
@@ -522,13 +528,77 @@ impl FromStr for Graph {
                 state.location.source.column += 1;
             }
         }
-        state.location.visual.line = std::usize::MAX;
-        state.location.visual.column = 0;
-        state.location.source.line = std::usize::MAX;
-        state.location.source.column = 0;
+        state.location = Node {
+            character: '\n',
+            visual: LineColumn {
+                line: std::usize::MAX,
+                column: 0,
+            },
+            source: LineColumn {
+                line: std::usize::MAX,
+                column: 0,
+            },
+        };
 
         state.finish();
 
         Ok(Graph(state.graph.to_owned()))
+    }
+}
+
+impl fmt::Display for Graph {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut lines: Vec<Vec<char>> = Vec::new();
+        let mut draw = |LineColumn { line, column }, brush| {
+            if lines.len() < line {
+                lines.resize_with(line, Default::default);
+            }
+            let line = &mut lines[line - 1];
+
+            if line.len() < column + 1 {
+                line.resize(column + 1, ' ');
+            }
+            line[column] = brush;
+        };
+
+        for location in self.0.nodes() {
+            draw(location.visual, location.character);
+        }
+
+        for (v, u, &Edge(_, brush, _)) in self.0.all_edges() {
+            let (v, u) = if v < u { (v, u) } else { (u, v) };
+            let (v, u) = (v.visual, u.visual);
+
+            let (line_columns, brush): (Vec<(usize, usize)>, _) = match brush {
+                Brush::NorthSouth(brush) => {
+                    ((v.line + 1..u.line).zip(repeat(v.column)).collect(), brush)
+                }
+                Brush::EastWest(brush) => {
+                    (repeat(v.line).zip(v.column + 1..u.column).collect(), brush)
+                }
+                Brush::NorthEastSouthWest(brush) => (
+                    (v.line + 1..u.line).zip(u.column + 1..v.column).collect(),
+                    brush,
+                ),
+                Brush::NorthWestSouthEast(brush) => (
+                    (v.line + 1..u.line).zip(v.column + 1..u.column).collect(),
+                    brush,
+                ),
+            };
+            for (line, column) in line_columns {
+                draw(LineColumn { line, column }, brush);
+            }
+        }
+
+        let lines: String = lines
+            .into_iter()
+            .flat_map(|mut line| {
+                line.push('\n');
+                line
+            })
+            .into_iter()
+            .collect();
+
+        f.write_str(lines.as_str().trim_end())
     }
 }
