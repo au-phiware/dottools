@@ -12,3 +12,4 @@ readme = "README.md"
 [dependencies]
 petgraph = "0.4.13"
 unicode-normalization = "0.1.8"
+base64 = "0.10.1"
