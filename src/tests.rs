@@ -21,7 +21,7 @@ macro_rules! parse {
 
 mod parse {
     mod horizontal {
-        use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node};
+        use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node, Region};
 
         parse!(
             short,
@@ -30,12 +30,14 @@ mod parse {
                 Node {
                     character: '-',
                     source: LineColumn { line: 1, column: 0 },
-                    visual: LineColumn { line: 1, column: 0 }
+                    visual: LineColumn { line: 1, column: 0 },
+                    region: (Region::Center, Region::West),
                 },
                 Node {
                     character: '-',
                     source: LineColumn { line: 1, column: 0 },
-                    visual: LineColumn { line: 1, column: 0 }
+                    visual: LineColumn { line: 1, column: 0 },
+                    region: (Region::Center, Region::East),
                 },
                 Edge(None, Brush::EastWest('-'), None),
             )]
@@ -48,12 +50,14 @@ mod parse {
                 Node {
                     character: '─',
                     source: LineColumn { line: 1, column: 0 },
-                    visual: LineColumn { line: 1, column: 0 }
+                    visual: LineColumn { line: 1, column: 0 },
+                    region: (Region::Center, Region::West),
                 },
                 Node {
                     character: '─',
                     source: LineColumn { line: 1, column: 4 },
-                    visual: LineColumn { line: 1, column: 4 }
+                    visual: LineColumn { line: 1, column: 4 },
+                    region: (Region::Center, Region::East),
                 },
                 Edge(None, Brush::EastWest('─'), None),
             )]
@@ -67,12 +71,14 @@ mod parse {
                     Node {
                         character: '─',
                         source: LineColumn { line: 1, column: 0 },
-                        visual: LineColumn { line: 1, column: 0 }
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::West),
                     },
                     Node {
                         character: '─',
                         source: LineColumn { line: 1, column: 1 },
-                        visual: LineColumn { line: 1, column: 1 }
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::Center, Region::East),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
@@ -80,12 +86,14 @@ mod parse {
                     Node {
                         character: '─',
                         source: LineColumn { line: 1, column: 4 },
-                        visual: LineColumn { line: 1, column: 4 }
+                        visual: LineColumn { line: 1, column: 4 },
+                        region: (Region::Center, Region::West),
                     },
                     Node {
                         character: '─',
                         source: LineColumn { line: 1, column: 6 },
-                        visual: LineColumn { line: 1, column: 6 }
+                        visual: LineColumn { line: 1, column: 6 },
+                        region: (Region::Center, Region::East),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 )
@@ -100,12 +108,14 @@ mod parse {
                     Node {
                         character: '─',
                         source: LineColumn { line: 1, column: 0 },
-                        visual: LineColumn { line: 1, column: 0 }
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::West),
                     },
                     Node {
                         character: '─',
                         source: LineColumn { line: 1, column: 1 },
-                        visual: LineColumn { line: 1, column: 1 }
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::Center, Region::East),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
@@ -113,12 +123,14 @@ mod parse {
                     Node {
                         character: '─',
                         source: LineColumn { line: 2, column: 0 },
-                        visual: LineColumn { line: 2, column: 0 }
+                        visual: LineColumn { line: 2, column: 0 },
+                        region: (Region::Center, Region::West),
                     },
                     Node {
                         character: '─',
                         source: LineColumn { line: 2, column: 2 },
-                        visual: LineColumn { line: 2, column: 2 }
+                        visual: LineColumn { line: 2, column: 2 },
+                        region: (Region::Center, Region::East),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 )
@@ -127,7 +139,7 @@ mod parse {
     }
 
     mod vertical {
-        use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node};
+        use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node, Region};
 
         parse!(
             short,
@@ -136,12 +148,14 @@ mod parse {
                 Node {
                     character: '|',
                     source: LineColumn { line: 1, column: 0 },
-                    visual: LineColumn { line: 1, column: 0 }
+                    visual: LineColumn { line: 1, column: 0 },
+                    region: (Region::North, Region::Center),
                 },
                 Node {
                     character: '|',
                     source: LineColumn { line: 1, column: 0 },
-                    visual: LineColumn { line: 1, column: 0 }
+                    visual: LineColumn { line: 1, column: 0 },
+                    region: (Region::South, Region::Center),
                 },
                 Edge(None, Brush::NorthSouth('|'), None),
             )]
@@ -154,12 +168,14 @@ mod parse {
                 Node {
                     character: '|',
                     source: LineColumn { line: 1, column: 0 },
-                    visual: LineColumn { line: 1, column: 0 }
+                    visual: LineColumn { line: 1, column: 0 },
+                    region: (Region::North, Region::Center),
                 },
                 Node {
                     character: '|',
                     source: LineColumn { line: 1, column: 0 },
-                    visual: LineColumn { line: 1, column: 0 }
+                    visual: LineColumn { line: 1, column: 0 },
+                    region: (Region::South, Region::Center),
                 },
                 Edge(None, Brush::NorthSouth('|'), None),
             )]
@@ -172,12 +188,14 @@ mod parse {
                 Node {
                     character: '|',
                     source: LineColumn { line: 1, column: 0 },
-                    visual: LineColumn { line: 1, column: 0 }
+                    visual: LineColumn { line: 1, column: 0 },
+                    region: (Region::North, Region::Center),
                 },
                 Node {
                     character: '|',
                     source: LineColumn { line: 1, column: 0 },
-                    visual: LineColumn { line: 1, column: 0 }
+                    visual: LineColumn { line: 1, column: 0 },
+                    region: (Region::South, Region::Center),
                 },
                 Edge(None, Brush::NorthSouth('|'), None),
             )]
@@ -190,12 +208,14 @@ mod parse {
                 Node {
                     character: '│',
                     source: LineColumn { line: 1, column: 0 },
-                    visual: LineColumn { line: 1, column: 0 }
+                    visual: LineColumn { line: 1, column: 0 },
+                    region: (Region::North, Region::Center),
                 },
                 Node {
                     character: '│',
                     source: LineColumn { line: 3, column: 0 },
-                    visual: LineColumn { line: 3, column: 0 }
+                    visual: LineColumn { line: 3, column: 0 },
+                    region: (Region::South, Region::Center),
                 },
                 Edge(None, Brush::NorthSouth('│'), None),
             )]
@@ -209,12 +229,14 @@ mod parse {
                     Node {
                         character: '│',
                         source: LineColumn { line: 1, column: 0 },
-                        visual: LineColumn { line: 1, column: 0 }
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::North, Region::Center),
                     },
                     Node {
                         character: '│',
                         source: LineColumn { line: 3, column: 0 },
-                        visual: LineColumn { line: 3, column: 0 }
+                        visual: LineColumn { line: 3, column: 0 },
+                        region: (Region::South, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
@@ -222,12 +244,14 @@ mod parse {
                     Node {
                         character: '│',
                         source: LineColumn { line: 1, column: 1 },
-                        visual: LineColumn { line: 1, column: 1 }
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::North, Region::Center),
                     },
                     Node {
                         character: '│',
                         source: LineColumn { line: 2, column: 1 },
-                        visual: LineColumn { line: 2, column: 1 }
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::South, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 )
@@ -236,7 +260,7 @@ mod parse {
     }
 
     mod diagonal {
-        use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node};
+        use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node, Region};
 
         parse!(
             backslash,
@@ -245,12 +269,14 @@ mod parse {
                 Node {
                     character: '╲',
                     source: LineColumn { line: 1, column: 0 },
-                    visual: LineColumn { line: 1, column: 0 }
+                    visual: LineColumn { line: 1, column: 0 },
+                    region: (Region::North, Region::West),
                 },
                 Node {
                     character: '╲',
                     source: LineColumn { line: 3, column: 2 },
-                    visual: LineColumn { line: 3, column: 2 }
+                    visual: LineColumn { line: 3, column: 2 },
+                    region: (Region::South, Region::East),
                 },
                 Edge(None, Brush::NorthWestSouthEast('╲'), None),
             )]
@@ -262,12 +288,14 @@ mod parse {
                 Node {
                     character: '/',
                     source: LineColumn { line: 1, column: 2 },
-                    visual: LineColumn { line: 1, column: 2 }
+                    visual: LineColumn { line: 1, column: 2 },
+                    region: (Region::North, Region::East),
                 },
                 Node {
                     character: '/',
                     source: LineColumn { line: 3, column: 0 },
-                    visual: LineColumn { line: 3, column: 0 }
+                    visual: LineColumn { line: 3, column: 0 },
+                    region: (Region::South, Region::West),
                 },
                 Edge(None, Brush::NorthEastSouthWest('/'), None),
             )]
@@ -275,7 +303,7 @@ mod parse {
     }
 
     mod node {
-        use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node};
+        use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node, Region};
 
         parse!(
             simple_cross,
@@ -295,7 +323,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 13
-                        }
+                        },
+                        region: (Region::North, Region::Center),
                     },
                     Node {
                         character: '┼',
@@ -306,7 +335,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
@@ -320,7 +350,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::West),
                     },
                     Node {
                         character: '┼',
@@ -331,7 +362,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
@@ -345,7 +377,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '─',
@@ -356,7 +389,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 14
-                        }
+                        },
+                        region: (Region::Center, Region::East),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
@@ -370,7 +404,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '│',
@@ -381,10 +416,78 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 13
-                        }
+                        },
+                        region: (Region::South, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 )
+            ]
+        );
+
+        parse!(
+            diagonal_cross_bare,
+            "╳",
+            [
+                (
+                    Node {
+                        character: '╳',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::North, Region::West),
+                    },
+                    Node {
+                        character: '╳',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('╲'), None),
+                ),
+                (
+                    Node {
+                        character: '╳',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::North, Region::East),
+                    },
+                    Node {
+                        character: '╳',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Edge(None, Brush::NorthEastSouthWest('╱'), None),
+                ),
+                (
+                    Node {
+                        character: '╳',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Node {
+                        character: '╳',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::South, Region::East),
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('╲'), None),
+                ),
+                (
+                    Node {
+                        character: '╳',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Node {
+                        character: '╳',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::South, Region::West),
+                    },
+                    Edge(None, Brush::NorthEastSouthWest('╱'), None),
+                ),
             ]
         );
 
@@ -406,7 +509,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 12
-                        }
+                        },
+                        region: (Region::North, Region::West),
                     },
                     Node {
                         character: '╳',
@@ -417,7 +521,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthWestSouthEast('╲'), None),
                 ),
@@ -431,7 +536,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 14
-                        }
+                        },
+                        region: (Region::North, Region::East),
                     },
                     Node {
                         character: '╳',
@@ -442,7 +548,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthEastSouthWest('╱'), None),
                 ),
@@ -456,7 +563,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '╱',
@@ -467,7 +575,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 12
-                        }
+                        },
+                        region: (Region::South, Region::West),
                     },
                     Edge(None, Brush::NorthEastSouthWest('╱'), None),
                 ),
@@ -481,7 +590,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '╲',
@@ -492,7 +602,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 14
-                        }
+                        },
+                        region: (Region::South, Region::East),
                     },
                     Edge(None, Brush::NorthWestSouthEast('╲'), None),
                 )
@@ -517,7 +628,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '┐',
@@ -528,7 +640,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 14
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
@@ -542,7 +655,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '└',
@@ -553,7 +667,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
@@ -567,7 +682,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 14
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '┘',
@@ -578,7 +694,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 14
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
@@ -592,7 +709,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '┘',
@@ -603,7 +721,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 14
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 )
@@ -628,7 +747,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '┑',
@@ -639,7 +759,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 14
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::EastWest('━'), None),
                 ),
@@ -653,7 +774,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '╘',
@@ -664,7 +786,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
@@ -678,7 +801,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 14
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '╛',
@@ -689,7 +813,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 14
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
@@ -703,7 +828,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '╛',
@@ -714,7 +840,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 14
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::EastWest('═'), None),
                 )
@@ -739,7 +866,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '╮',
@@ -750,7 +878,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 14
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
@@ -764,7 +893,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '╰',
@@ -775,7 +905,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
@@ -789,7 +920,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 14
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '╯',
@@ -800,7 +932,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 14
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
@@ -814,7 +947,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '╯',
@@ -825,7 +959,8 @@ mod parse {
                         visual: LineColumn {
                             line: 4,
                             column: 14
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 )
@@ -852,7 +987,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 13
-                        }
+                        },
+                        region: (Region::North, Region::Center),
                     },
                     Node {
                         character: '├',
@@ -863,7 +999,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
@@ -877,7 +1014,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '┬',
@@ -888,7 +1026,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 15
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
@@ -902,7 +1041,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '┴',
@@ -913,7 +1053,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
@@ -927,7 +1068,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 15
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '─',
@@ -938,7 +1080,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 16
-                        }
+                        },
+                        region: (Region::Center, Region::East),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
@@ -952,7 +1095,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 15
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '┤',
@@ -963,7 +1107,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 15
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
@@ -977,7 +1122,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::West),
                     },
                     Node {
                         character: '┴',
@@ -988,7 +1134,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
@@ -1002,7 +1149,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '┤',
@@ -1013,7 +1161,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 15
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
@@ -1027,7 +1176,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 15
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '│',
@@ -1038,7 +1188,8 @@ mod parse {
                         visual: LineColumn {
                             line: 6,
                             column: 15
-                        }
+                        },
+                        region: (Region::South, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 )
@@ -1065,7 +1216,8 @@ mod parse {
                         visual: LineColumn {
                             line: 2,
                             column: 13
-                        }
+                        },
+                        region: (Region::North, Region::Center),
                     },
                     Node {
                         character: '┢',
@@ -1076,7 +1228,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 ),
@@ -1090,7 +1243,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '┱',
@@ -1101,7 +1255,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 15
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::EastWest('━'), None),
                 ),
@@ -1115,7 +1270,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '┺',
@@ -1126,7 +1282,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('┃'), None),
                 ),
@@ -1140,7 +1297,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 15
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '─',
@@ -1151,7 +1309,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 16
-                        }
+                        },
+                        region: (Region::Center, Region::East),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
@@ -1165,7 +1324,8 @@ mod parse {
                         visual: LineColumn {
                             line: 3,
                             column: 15
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '┩',
@@ -1176,7 +1336,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 15
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('┃'), None),
                 ),
@@ -1190,7 +1351,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 12
-                        }
+                        },
+                        region: (Region::Center, Region::West),
                     },
                     Node {
                         character: '┺',
@@ -1201,7 +1363,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::EastWest('─'), None),
                 ),
@@ -1215,7 +1378,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 13
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '┩',
@@ -1226,7 +1390,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 15
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Edge(None, Brush::EastWest('━'), None),
                 ),
@@ -1240,7 +1405,8 @@ mod parse {
                         visual: LineColumn {
                             line: 5,
                             column: 15
-                        }
+                        },
+                        region: (Region::Center, Region::Center),
                     },
                     Node {
                         character: '│',
@@ -1251,7 +1417,8 @@ mod parse {
                         visual: LineColumn {
                             line: 6,
                             column: 15
-                        }
+                        },
+                        region: (Region::South, Region::Center),
                     },
                     Edge(None, Brush::NorthSouth('│'), None),
                 )
@@ -1260,7 +1427,7 @@ mod parse {
     }
 
     mod fuzzer {
-        use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node};
+        use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node, Region};
 
         parse!(
             crash_a2f152cf0c74db76441c5fed6ab26e4741ab0a71,
@@ -1270,12 +1437,14 @@ mod parse {
                     Node {
                         character: '=',
                         source: LineColumn { line: 1, column: 0 },
-                        visual: LineColumn { line: 1, column: 0 }
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::West),
                     },
                     Node {
                         character: '=',
                         source: LineColumn { line: 1, column: 0 },
-                        visual: LineColumn { line: 1, column: 0 }
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::East),
                     },
                     Edge(None, Brush::EastWest('='), None),
                 ),
@@ -1283,12 +1452,14 @@ mod parse {
                     Node {
                         character: '=',
                         source: LineColumn { line: 2, column: 0 },
-                        visual: LineColumn { line: 2, column: 0 }
+                        visual: LineColumn { line: 2, column: 0 },
+                        region: (Region::Center, Region::West),
                     },
                     Node {
                         character: '=',
                         source: LineColumn { line: 2, column: 0 },
-                        visual: LineColumn { line: 2, column: 0 }
+                        visual: LineColumn { line: 2, column: 0 },
+                        region: (Region::Center, Region::East),
                     },
                     Edge(None, Brush::EastWest('='), None),
                 )
@@ -1302,12 +1473,14 @@ mod parse {
                 Node {
                     character: '=',
                     source: LineColumn { line: 1, column: 1 },
-                    visual: LineColumn { line: 1, column: 1 }
+                    visual: LineColumn { line: 1, column: 1 },
+                    region: (Region::Center, Region::West),
                 },
                 Node {
                     character: '=',
                     source: LineColumn { line: 1, column: 1 },
-                    visual: LineColumn { line: 1, column: 1 }
+                    visual: LineColumn { line: 1, column: 1 },
+                    region: (Region::Center, Region::East),
                 },
                 Edge(None, Brush::EastWest('='), None),
             )]
@@ -1321,12 +1494,14 @@ mod parse {
                     Node {
                         character: '-',
                         source: LineColumn { line: 1, column: 1 },
-                        visual: LineColumn { line: 1, column: 1 }
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::Center, Region::West),
                     },
                     Node {
                         character: '-',
                         source: LineColumn { line: 1, column: 1 },
-                        visual: LineColumn { line: 1, column: 1 }
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::Center, Region::East),
                     },
                     Edge(None, Brush::EastWest('-'), None),
                 ),
@@ -1334,12 +1509,14 @@ mod parse {
                     Node {
                         character: '=',
                         source: LineColumn { line: 1, column: 2 },
-                        visual: LineColumn { line: 1, column: 2 }
+                        visual: LineColumn { line: 1, column: 2 },
+                        region: (Region::Center, Region::West),
                     },
                     Node {
                         character: '=',
                         source: LineColumn { line: 1, column: 2 },
-                        visual: LineColumn { line: 1, column: 2 }
+                        visual: LineColumn { line: 1, column: 2 },
+                        region: (Region::Center, Region::East),
                     },
                     Edge(None, Brush::EastWest('='), None),
                 )
@@ -1354,12 +1531,14 @@ mod parse {
                     Node {
                         character: '=',
                         source: LineColumn { line: 1, column: 0 },
-                        visual: LineColumn { line: 1, column: 0 }
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::West),
                     },
                     Node {
                         character: '=',
                         source: LineColumn { line: 1, column: 0 },
-                        visual: LineColumn { line: 1, column: 0 }
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::East),
                     },
                     Edge(None, Brush::EastWest('='), None),
                 ),
@@ -1367,12 +1546,14 @@ mod parse {
                     Node {
                         character: '/',
                         source: LineColumn { line: 1, column: 1 },
-                        visual: LineColumn { line: 1, column: 1 }
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::North, Region::East),
                     },
                     Node {
                         character: '/',
                         source: LineColumn { line: 1, column: 1 },
-                        visual: LineColumn { line: 1, column: 1 }
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::South, Region::West),
                     },
                     Edge(None, Brush::NorthEastSouthWest('/'), None),
                 ),
@@ -1380,12 +1561,14 @@ mod parse {
                     Node {
                         character: '/',
                         source: LineColumn { line: 1, column: 3 },
-                        visual: LineColumn { line: 1, column: 3 }
+                        visual: LineColumn { line: 1, column: 3 },
+                        region: (Region::North, Region::East),
                     },
                     Node {
                         character: '/',
                         source: LineColumn { line: 1, column: 3 },
-                        visual: LineColumn { line: 1, column: 3 }
+                        visual: LineColumn { line: 1, column: 3 },
+                        region: (Region::South, Region::West),
                     },
                     Edge(None, Brush::NorthEastSouthWest('/'), None),
                 )
@@ -1400,12 +1583,14 @@ mod parse {
                     Node {
                         character: '\\',
                         source: LineColumn { line: 2, column: 0 },
-                        visual: LineColumn { line: 2, column: 0 }
+                        visual: LineColumn { line: 2, column: 0 },
+                        region: (Region::North, Region::West),
                     },
                     Node {
                         character: '\\',
                         source: LineColumn { line: 2, column: 0 },
-                        visual: LineColumn { line: 2, column: 0 }
+                        visual: LineColumn { line: 2, column: 0 },
+                        region: (Region::South, Region::East),
                     },
                     Edge(None, Brush::NorthWestSouthEast('\\'), None),
                 ),
@@ -1413,12 +1598,14 @@ mod parse {
                     Node {
                         character: '\\',
                         source: LineColumn { line: 2, column: 1 },
-                        visual: LineColumn { line: 2, column: 1 }
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::North, Region::West),
                     },
                     Node {
                         character: '\\',
                         source: LineColumn { line: 2, column: 1 },
-                        visual: LineColumn { line: 2, column: 1 }
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::South, Region::East),
                     },
                     Edge(None, Brush::NorthWestSouthEast('\\'), None),
                 ),
@@ -1426,15 +1613,84 @@ mod parse {
                     Node {
                         character: '\\',
                         source: LineColumn { line: 2, column: 2 },
-                        visual: LineColumn { line: 2, column: 2 }
+                        visual: LineColumn { line: 2, column: 2 },
+                        region: (Region::North, Region::West),
                     },
                     Node {
                         character: '\\',
                         source: LineColumn { line: 2, column: 2 },
-                        visual: LineColumn { line: 2, column: 2 }
+                        visual: LineColumn { line: 2, column: 2 },
+                        region: (Region::South, Region::East),
                     },
                     Edge(None, Brush::NorthWestSouthEast('\\'), None),
                 )
+            ]
+        );
+
+        parse!(
+            crash_89dee50b108f2e3632520f91ca3c87d8344dbcee,
+            String::from_utf8(base64::decode("CgBYAA==").unwrap()).unwrap(),
+            [
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 1 },
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::North, Region::West),
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 1 },
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('\\'), None),
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 1 },
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::North, Region::East),
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 1 },
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Edge(None, Brush::NorthEastSouthWest('/'), None),
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 1 },
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 1 },
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::South, Region::East),
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('\\'), None),
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 1 },
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 1 },
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::South, Region::West),
+                    },
+                    Edge(None, Brush::NorthEastSouthWest('/'), None),
+                ),
             ]
         );
     }

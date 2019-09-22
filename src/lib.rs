@@ -26,10 +26,20 @@ pub struct LineColumn {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum Region {
+    Center,
+    North,
+    East,
+    South,
+    West,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Node {
     character: char,
     source: LineColumn,
     visual: LineColumn,
+    region: (Region, Region),
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -174,9 +184,16 @@ impl State {
                         location.line + 1 == line && location.column == column + 1 && brush == c
                     }
                 } {
+                    let mut end = self.location.clone();
+                    end.region = match brush {
+                        Brush::NorthSouth(_) => (Region::South, Region::Center),
+                        Brush::EastWest(_) => (Region::Center, Region::East),
+                        Brush::NorthWestSouthEast(_) => (Region::South, Region::East),
+                        Brush::NorthEastSouthWest(_) => (Region::South, Region::West),
+                    };
                     self.ports.push(Port {
                         start: port.start,
-                        end: self.location,
+                        end,
                         edge: port.edge,
                     });
                     pass = true;
@@ -196,7 +213,9 @@ impl State {
                         _ => false,
                     }
                 {
-                    self.graph.add_edge(port.start, self.location, port.edge);
+                    let mut end = self.location.clone();
+                    end.region = (Region::Center, Region::Center);
+                    self.graph.add_edge(port.start, end, port.edge);
                     built_north_west_south_east = true;
                 } else if location.column == column + 1
                     && match brush {
@@ -214,7 +233,9 @@ impl State {
                         _ => false,
                     }
                 {
-                    self.graph.add_edge(port.start, self.location, port.edge);
+                    let mut end = self.location.clone();
+                    end.region = (Region::Center, Region::Center);
+                    self.graph.add_edge(port.start, end, port.edge);
                     built_north_east_south_west = true;
                 } else if location.column == column
                     && match brush {
@@ -242,7 +263,9 @@ impl State {
                         _ => false,
                     }
                 {
-                    self.graph.add_edge(port.start, self.location, port.edge);
+                    let mut end = self.location.clone();
+                    end.region = (Region::Center, Region::Center);
+                    self.graph.add_edge(port.start, end, port.edge);
                     if let Some(brush) = match c {
                         '├' | '┝' | '┤' | '┥' | '╞' | '╡' | '┼' | '┽' | '┾' | '┿' | '╪' | '┞'
                         | '┡' | '┦' | '┩' | '╀' | '╃' | '╄' | '╇' | '╿' => {
@@ -253,9 +276,12 @@ impl State {
                         '╟' | '╠' | '╢' | '╣' | '╫' | '╬' => Some('║'),
                         _ => None,
                     } {
+                        let start = end.clone();
+                        let mut end = self.location.clone();
+                        end.region = (Region::South, Region::Center);
                         self.ports.push(Port {
-                            start: self.location,
-                            end: self.location,
+                            start,
+                            end,
                             edge: Edge(None, Brush::NorthSouth(brush), None),
                         });
                     }
@@ -288,44 +314,66 @@ impl State {
             | (_, '/')
             | (_, '╱') => {
                 complete_build = self.tx;
-                let start = self.graph.add_node(self.location.clone());
+                let mut start = self.location.clone();
+                start.region = (Region::North, Region::Center);
+                let mut end = self.location.clone();
+                end.region = (Region::South, Region::Center);
                 let brush = match c {
-                    '\\' | '╲' => Brush::NorthWestSouthEast(c),
-                    '/' | '╱' => Brush::NorthEastSouthWest(c),
+                    '\\' | '╲' => {
+                        start.region.1 = Region::West;
+                        end.region.1 = Region::East;
+                        Brush::NorthWestSouthEast(c)
+                    }
+                    '/' | '╱' => {
+                        start.region.1 = Region::East;
+                        end.region.1 = Region::West;
+                        Brush::NorthEastSouthWest(c)
+                    }
                     _ => Brush::NorthSouth(c),
                 };
                 self.ports.push(Port {
                     start,
-                    end: self.location,
+                    end,
                     edge: Edge(None, brush, None),
                 });
                 Tx::Initial
             }
             (_, '╳') | (_, 'X') => {
                 complete_build = self.tx;
-                let start = self.graph.add_node(self.location.clone());
+                let mut start = self.location.clone();
+                start.region = (Region::North, Region::West);
+                let mut end = self.location.clone();
+                end.region = (Region::Center, Region::Center);
                 let brush = Brush::NorthWestSouthEast(match c {
                     '╳' => '╲',
                     _ => '\\',
                 });
                 if !built_north_west_south_east {
-                    self.graph.add_edge(start, start, Edge(None, brush, None));
+                    self.graph.add_edge(start, end, Edge(None, brush, None));
                 }
+                start = end.clone();
+                end.region = (Region::South, Region::East);
                 self.ports.push(Port {
                     start,
-                    end: self.location,
+                    end,
                     edge: Edge(None, brush, None),
                 });
                 let brush = Brush::NorthEastSouthWest(match c {
                     '╳' => '╱',
                     _ => '/',
                 });
+                let mut start = self.location.clone();
+                start.region = (Region::North, Region::East);
+                let mut end = self.location.clone();
+                end.region = (Region::Center, Region::Center);
                 if !built_north_east_south_west {
-                    self.graph.add_edge(start, start, Edge(None, brush, None));
+                    self.graph.add_edge(start, end, Edge(None, brush, None));
                 }
+                start = end.clone();
+                end.region = (Region::South, Region::West);
                 self.ports.push(Port {
                     start,
-                    end: self.location,
+                    end,
                     edge: Edge(None, brush, None),
                 });
                 Tx::Initial
@@ -350,7 +398,10 @@ impl State {
             | (_, '╟')
             | (_, '╠') => {
                 complete_build = self.tx;
-                let start = self.graph.add_node(self.location.clone());
+                let mut start = self.location.clone();
+                start.region = (Region::Center, Region::Center);
+                let mut end = self.location.clone();
+                end.region = (Region::South, Region::Center);
                 let brush = match c {
                     '╔' | '╓' | '╟' | '╠' => '║',
                     '┏' | '┎' | '┟' | '┠' | '┢' | '┣' => '┃',
@@ -378,7 +429,8 @@ impl State {
             | (_, '┕')
             | (_, '┖') => {
                 complete_build = self.tx;
-                let start = self.graph.add_node(self.location.clone());
+                let mut start = self.location.clone();
+                start.region = (Region::Center, Region::Center);
                 let brush = match c {
                     '╚' | '╘' => '═',
                     '┗' | '┕' => '━',
@@ -390,7 +442,8 @@ impl State {
             (Tx::Initial, _) => match c {
                 '─' | '═' | '━' | '┈' | '┉' | '┄' | '┅' | '╌' | '╍' | '-' | '=' =>
                 {
-                    let start = self.graph.add_node(self.location.clone());
+                    let mut start = self.location.clone();
+                    start.region = (Region::Center, Region::West);
                     let edge = Edge(None, Brush::EastWest(c), None);
                     Tx::Build { start, edge }
                 }
@@ -399,6 +452,10 @@ impl State {
                 | '┼' | '┽' | '┾' | '┿' | '╁' | '╅' | '╆' | '╈' | '╪' | '┸' | '┹' | '┺' | '┻'
                 | '┦' | '┨' | '┩' | '┫' | '╀' | '╂' | '╃' | '╄' | '╇' | '╉' | '╊' | '╋' | '╨'
                 | '╩' | '╢' | '╣' | '╫' | '╬' => {
+                    let mut start = self.location.clone();
+                    start.region = (Region::Center, Region::West);
+                    let mut end = self.location.clone();
+                    end.region = (Region::Center, Region::Center);
                     let brush = match c {
                         '┛' | '┙' | '┓' | '┑' | '┵' | '┷' | '┥' | '┪' | '┽' | '┿' | '╅' | '╈'
                         | '┹' | '┻' | '┩' | '┫' | '╃' | '╇' | '╉' | '╋' => '━',
@@ -407,11 +464,9 @@ impl State {
                         }
                         _ => '─',
                     };
-                    self.graph.add_edge(
-                        self.location,
-                        self.location,
-                        Edge(None, Brush::EastWest(brush), None),
-                    );
+                    let edge = Edge(None, Brush::EastWest(brush), None);
+                    self.graph.add_edge(start, end, edge);
+                    start.region = (Region::Center, Region::Center);
                     if let Some(brush) = match c {
                         '┐' | '╮' | '┑' | '╕' | '├' | '┝' | '┞' | '┡' | '╞' | '┤' | '┥' | '╡'
                         | '┼' | '┽' | '┾' | '┿' | '╪' | '┦' | '┩' | '╀' | '╃' | '╄' | '╇' => {
@@ -422,11 +477,9 @@ impl State {
                         '╗' | '╖' | '╟' | '╠' | '╢' | '╣' | '╫' | '╬' => Some('║'),
                         _ => None,
                     } {
-                        self.ports.push(Port {
-                            start: self.location,
-                            end: self.location,
-                            edge: Edge(None, Brush::NorthSouth(brush), None),
-                        });
+                        let edge = Edge(None, Brush::NorthSouth(brush), None);
+                        end.region = (Region::South, Region::Center);
+                        self.ports.push(Port { start, end, edge });
                     }
                     if let Some(brush) = match c {
                         '┼' | '┽' | '┴' | '┵' | '╁' | '╅' | '┸' | '┹' | '╀' | '├' | '┞' | '┟'
@@ -436,7 +489,6 @@ impl State {
                         '╬' | '╩' | '╧' | '╪' | '╞' | '╠' => Some('═'),
                         _ => None,
                     } {
-                        let start = self.graph.add_node(self.location.clone());
                         let edge = Edge(None, Brush::EastWest(brush), None);
                         Tx::Build { start, edge }
                     } else {
@@ -472,7 +524,10 @@ impl State {
                                 _ => false,
                             } =>
                         {
-                            let start = self.graph.add_node(self.location);
+                            let mut start = self.location;
+                            start.region = (Region::Center, Region::Center);
+                            let mut end = self.location;
+                            end.region = (Region::South, Region::Center);
                             let brush = match c {
                                 '┐' | '┑' | '╮' | '╕' | '├' | '┝' | '┞' | '┡' | '┬' | '┭' | '┮'
                                 | '┯' | '╞' | '╤' | '┤' | '┥' | '╡' | '┼' | '┽' | '┾' | '┿'
@@ -488,18 +543,40 @@ impl State {
                                 _ => None,
                             };
                             if let Some(brush) = brush {
-                                self.ports.push(Port {
-                                    start,
-                                    end: self.location,
-                                    edge: Edge(None, Brush::NorthSouth(brush), None),
-                                });
+                                let edge = Edge(None, Brush::NorthSouth(brush), None);
+                                self.ports.push(Port { start, end, edge });
                             }
                             start
                         }
-                        _ => self.graph.add_node(self.previous_location.clone()),
+                        _ => {
+                            if let Some(brush) = match c {
+                                '┼' | '┴' | '┬' | '┰' | '╁' | '┸' | '╀' | '╂' | '┶' | '┾' | '╆'
+                                | '┺' | '┮' | '┲' | '╄' | '╊' | '╨' | '╫' => {
+                                    Some('─')
+                                }
+
+                                '╋' | '┽' | '┵' | '┭' | '┱' | '╅' | '┹' | '╃' | '╉' | '┷' | '┿'
+                                | '╈' | '┻' | '┯' | '┳' | '╇' => Some('━'),
+
+                                '╬' | '╧' | '╪' | '╩' | '╤' | '╦' => Some('═'),
+                                _ => None,
+                            } {
+                                let mut start = self.location.clone();
+                                start.region = (Region::Center, Region::West);
+                                let mut end = self.location.clone();
+                                end.region = (Region::Center, Region::Center);
+                                let edge = Edge(None, Brush::EastWest(brush), None);
+                                self.graph.add_edge(start, end, edge);
+                            }
+                            let mut end = self.previous_location.clone();
+                            end.region = (Region::Center, Region::East);
+                            end
+                        }
                     };
                     self.graph.add_edge(start, end, edge);
-                    match match c {
+                    let mut start = self.location;
+                    start.region = (Region::Center, Region::Center);
+                    if let Some(brush) = match c {
                         '┼' | '┴' | '┵' | '├' | '┞' | '┟' | '┠' | '┬' | '┭' | '┰' | '┱' | '┽'
                         | '╁' | '╅' | '┸' | '┹' | '╀' | '╂' | '╃' | '╉' | '╨' | '╫' => {
                             Some('─')
@@ -509,22 +586,26 @@ impl State {
                             Some('━')
                         }
                         '╬' | '╧' | '╪' | '╩' | '╤' | '╦' | '╞' | '╠' => Some('═'),
-                        '-' | '=' | '─' | '┈' | '┄' | '╌' | '━' | '┉' | '┅' | '╍' | '═' => {
+                        '-' | '=' | '─' | '┈' | '┄' | '╌' | '━' | '┉' | '┅' | '╍' | '═' =>
+                        {
+                            start.region = (Region::Center, Region::West);
                             Some(c)
                         }
                         _ => None,
                     } {
-                        Some(brush) => Tx::Build {
-                            start: self.location,
+                        Tx::Build {
+                            start,
                             edge: Edge(None, Brush::EastWest(brush), None),
-                        },
-                        None => Tx::Initial,
+                        }
+                    } else {
+                        Tx::Initial
                     }
                 }
             },
         };
         if let Tx::Build { start, edge } = complete_build {
-            let end = self.graph.add_node(self.previous_location.clone());
+            let mut end = self.previous_location.clone();
+            end.region = (Region::Center, Region::East);
             self.graph.add_edge(start, end, edge);
         }
     }
@@ -537,11 +618,13 @@ impl State {
                 character: '\u{0000}',
                 source: LineColumn { line: 1, column: 0 },
                 visual: LineColumn { line: 1, column: 0 },
+                region: (Region::Center, Region::Center),
             },
             previous_location: Node {
                 character: '\u{0000}',
                 source: LineColumn { line: 0, column: 0 },
                 visual: LineColumn { line: 0, column: 0 },
+                region: (Region::Center, Region::Center),
             },
             tx: Tx::Initial,
         }
@@ -590,6 +673,7 @@ impl FromStr for Graph {
                 line: std::usize::MAX,
                 column: 0,
             },
+            region: (Region::Center, Region::Center),
         };
 
         state.finish();
