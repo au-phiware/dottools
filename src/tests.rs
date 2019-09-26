@@ -611,6 +611,73 @@ mod parse {
         );
 
         parse!(
+            diagonal_cross_truncated,
+            " X\n/ \\",
+            [
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::North, Region::West),
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('\\'), None),
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::North, Region::East),
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Edge(None, Brush::NorthEastSouthWest('/'), None),
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Node {
+                        character: '/',
+                        source: LineColumn { line: 2, column: 0 },
+                        visual: LineColumn { line: 2, column: 0 },
+                        region: (Region::South, Region::West),
+                    },
+                    Edge(None, Brush::NorthEastSouthWest('/'), None),
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Node {
+                        character: '\\',
+                        source: LineColumn { line: 2, column: 2 },
+                        visual: LineColumn { line: 2, column: 2 },
+                        region: (Region::South, Region::East),
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('\\'), None),
+                )
+            ]
+        );
+
+        parse!(
             corners,
             "
             ┌─┐
@@ -1758,6 +1825,195 @@ mod parse {
                     },
                     Edge(None, Brush::NorthEastSouthWest('/'), None),
                 ),
+            ]
+        );
+
+        parse!(
+            crash_8b3a3c0e7591d31a8bf0a30affe7d612d0cb2c4e,
+            // *X
+            // X\\X
+            "*X\nX\\\\X",
+            [
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::North, Region::West)
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::Center, Region::Center)
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::North, Region::East)
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::Center, Region::Center)
+                    },
+                    Edge(None, Brush::NorthEastSouthWest('/'), None)
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::Center, Region::Center)
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 0 },
+                        visual: LineColumn { line: 2, column: 0 },
+                        region: (Region::Center, Region::Center)
+                    },
+                    Edge(None, Brush::NorthEastSouthWest('/'), None)
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 1, column: 1 },
+                        visual: LineColumn { line: 1, column: 1 },
+                        region: (Region::Center, Region::Center)
+                    },
+                    Node {
+                        character: '\\',
+                        source: LineColumn { line: 2, column: 2 },
+                        visual: LineColumn { line: 2, column: 2 },
+                        region: (Region::South, Region::East)
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 0 },
+                        visual: LineColumn { line: 2, column: 0 },
+                        region: (Region::North, Region::West)
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 0 },
+                        visual: LineColumn { line: 2, column: 0 },
+                        region: (Region::Center, Region::Center)
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 0 },
+                        visual: LineColumn { line: 2, column: 0 },
+                        region: (Region::Center, Region::Center)
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 0 },
+                        visual: LineColumn { line: 2, column: 0 },
+                        region: (Region::South, Region::East)
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 0 },
+                        visual: LineColumn { line: 2, column: 0 },
+                        region: (Region::Center, Region::Center)
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 0 },
+                        visual: LineColumn { line: 2, column: 0 },
+                        region: (Region::South, Region::West)
+                    },
+                    Edge(None, Brush::NorthEastSouthWest('/'), None)
+                ),
+                (
+                    Node {
+                        character: '\\',
+                        source: LineColumn { line: 2, column: 1 },
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::North, Region::West)
+                    },
+                    Node {
+                        character: '\\',
+                        source: LineColumn { line: 2, column: 1 },
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::South, Region::East)
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 3 },
+                        visual: LineColumn { line: 2, column: 3 },
+                        region: (Region::North, Region::West)
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 3 },
+                        visual: LineColumn { line: 2, column: 3 },
+                        region: (Region::Center, Region::Center)
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 3 },
+                        visual: LineColumn { line: 2, column: 3 },
+                        region: (Region::North, Region::East)
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 3 },
+                        visual: LineColumn { line: 2, column: 3 },
+                        region: (Region::Center, Region::Center)
+                    },
+                    Edge(None, Brush::NorthEastSouthWest('/'), None)
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 3 },
+                        visual: LineColumn { line: 2, column: 3 },
+                        region: (Region::Center, Region::Center)
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 3 },
+                        visual: LineColumn { line: 2, column: 3 },
+                        region: (Region::South, Region::East)
+                    },
+                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                ),
+                (
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 3 },
+                        visual: LineColumn { line: 2, column: 3 },
+                        region: (Region::Center, Region::Center)
+                    },
+                    Node {
+                        character: 'X',
+                        source: LineColumn { line: 2, column: 3 },
+                        visual: LineColumn { line: 2, column: 3 },
+                        region: (Region::South, Region::West)
+                    },
+                    Edge(None, Brush::NorthEastSouthWest('/'), None)
+                )
             ]
         );
     }
