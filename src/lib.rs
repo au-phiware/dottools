@@ -642,13 +642,11 @@ impl FromStr for Graph {
         let mut state = &mut State::start();
 
         for c in input.chars() {
-            state.location.character = c;
             let is_combining_mark = is_combining_mark(c);
             if !is_combining_mark {
+                state.location.character = c;
                 state.next();
-            }
-            state.previous_location = state.location;
-            if !is_combining_mark {
+                state.previous_location = state.location;
                 state.location.visual.column += 1;
             }
 
@@ -746,8 +744,8 @@ pub fn clean_string(s: &str) -> String {
     for c in s[..].chars() {
         if '─' <= c && c <= '╿'
             || match c {
-                '|' | '-' | '=' | '/' | '\\' | '+' | 'X' => true,
-                '\t' | '\r' | '\n' => true,
+                '|' | '-' | '=' | '/' | '\\' | 'X' => true,
+                '\n' => true,
                 _ => false,
             }
         {
