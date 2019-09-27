@@ -1,20 +1,19 @@
 extern crate base64;
 
 macro_rules! parse {
-    ($name:ident, $input:expr, $graph:pat) => {
+    ($name:ident, $input:expr, $graph:expr) => {
         #[test]
         fn $name() {
             let input = $input;
             let g = input.parse::<Graph>().unwrap();
             println!("{:?}", g);
+            let output = g.to_string();
             let mut v = g.all_edges().collect::<Vec<(Node, Node, &Edge)>>();
+            let mut g = $graph;
             v.sort_by_key(|e| (e.0, e.1));
-            println!("{:?}", v);
-            assert!(match &v[..] {
-                $graph => true,
-                _ => false,
-            });
-            assert_eq!(clean_string(input.trim_end()), g.to_string());
+            g.sort_by_key(|e| (e.0, e.1));
+            assert_eq!(&v[..], &g[..]);
+            assert_eq!(clean_string(input.trim_end()), output);
         }
     };
 }
@@ -22,6 +21,7 @@ macro_rules! parse {
 mod parse {
     mod horizontal {
         use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node, Region};
+        use pretty_assertions::assert_eq;
 
         parse!(
             short,
@@ -39,7 +39,7 @@ mod parse {
                     visual: LineColumn { line: 1, column: 0 },
                     region: (Region::Center, Region::East),
                 },
-                Edge(None, Brush::EastWest('-'), None),
+                &Edge(None, Brush::EastWest('-'), None),
             )]
         );
 
@@ -59,7 +59,7 @@ mod parse {
                     visual: LineColumn { line: 1, column: 4 },
                     region: (Region::Center, Region::East),
                 },
-                Edge(None, Brush::EastWest('─'), None),
+                &Edge(None, Brush::EastWest('─'), None),
             )]
         );
 
@@ -80,7 +80,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 1 },
                         region: (Region::Center, Region::East),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     Node {
@@ -95,7 +95,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 6 },
                         region: (Region::Center, Region::East),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 )
             ]
         );
@@ -117,7 +117,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 1 },
                         region: (Region::Center, Region::East),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     Node {
@@ -132,7 +132,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 2 },
                         region: (Region::Center, Region::East),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 )
             ]
         );
@@ -140,6 +140,7 @@ mod parse {
 
     mod vertical {
         use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node, Region};
+        use pretty_assertions::assert_eq;
 
         parse!(
             short,
@@ -157,7 +158,7 @@ mod parse {
                     visual: LineColumn { line: 1, column: 0 },
                     region: (Region::South, Region::Center),
                 },
-                Edge(None, Brush::NorthSouth('|'), None),
+                &Edge(None, Brush::NorthSouth('|'), None),
             )]
         );
 
@@ -177,7 +178,7 @@ mod parse {
                     visual: LineColumn { line: 1, column: 0 },
                     region: (Region::South, Region::Center),
                 },
-                Edge(None, Brush::NorthSouth('|'), None),
+                &Edge(None, Brush::NorthSouth('|'), None),
             )]
         );
 
@@ -197,7 +198,7 @@ mod parse {
                     visual: LineColumn { line: 1, column: 0 },
                     region: (Region::South, Region::Center),
                 },
-                Edge(None, Brush::NorthSouth('|'), None),
+                &Edge(None, Brush::NorthSouth('|'), None),
             )]
         );
 
@@ -217,7 +218,7 @@ mod parse {
                     visual: LineColumn { line: 3, column: 0 },
                     region: (Region::South, Region::Center),
                 },
-                Edge(None, Brush::NorthSouth('│'), None),
+                &Edge(None, Brush::NorthSouth('│'), None),
             )]
         );
 
@@ -238,7 +239,7 @@ mod parse {
                         visual: LineColumn { line: 3, column: 0 },
                         region: (Region::South, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
                     Node {
@@ -253,7 +254,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 1 },
                         region: (Region::South, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 )
             ]
         );
@@ -261,6 +262,7 @@ mod parse {
 
     mod diagonal {
         use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node, Region};
+        use pretty_assertions::assert_eq;
 
         parse!(
             backslash,
@@ -278,7 +280,7 @@ mod parse {
                     visual: LineColumn { line: 3, column: 2 },
                     region: (Region::South, Region::East),
                 },
-                Edge(None, Brush::NorthWestSouthEast('╲'), None),
+                &Edge(None, Brush::NorthWestSouthEast('╲'), None),
             )]
         );
         parse!(
@@ -297,13 +299,14 @@ mod parse {
                     visual: LineColumn { line: 3, column: 0 },
                     region: (Region::South, Region::West),
                 },
-                Edge(None, Brush::NorthEastSouthWest('/'), None),
+                &Edge(None, Brush::NorthEastSouthWest('/'), None),
             )]
         );
     }
 
     mod node {
         use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node, Region};
+        use pretty_assertions::assert_eq;
 
         parse!(
             simple_cross,
@@ -338,7 +341,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
                     Node {
@@ -365,7 +368,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     Node {
@@ -392,7 +395,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::East),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     Node {
@@ -419,7 +422,7 @@ mod parse {
                         },
                         region: (Region::South, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 )
             ]
         );
@@ -441,7 +444,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 0 },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthWestSouthEast('╲'), None),
+                    &Edge(None, Brush::NorthWestSouthEast('╲'), None),
                 ),
                 (
                     Node {
@@ -456,7 +459,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 0 },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthEastSouthWest('╱'), None),
+                    &Edge(None, Brush::NorthEastSouthWest('╱'), None),
                 ),
                 (
                     Node {
@@ -471,7 +474,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 0 },
                         region: (Region::South, Region::East),
                     },
-                    Edge(None, Brush::NorthWestSouthEast('╲'), None),
+                    &Edge(None, Brush::NorthWestSouthEast('╲'), None),
                 ),
                 (
                     Node {
@@ -486,7 +489,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 0 },
                         region: (Region::South, Region::West),
                     },
-                    Edge(None, Brush::NorthEastSouthWest('╱'), None),
+                    &Edge(None, Brush::NorthEastSouthWest('╱'), None),
                 ),
             ]
         );
@@ -524,7 +527,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthWestSouthEast('╲'), None),
+                    &Edge(None, Brush::NorthWestSouthEast('╲'), None),
                 ),
                 (
                     Node {
@@ -551,7 +554,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthEastSouthWest('╱'), None),
+                    &Edge(None, Brush::NorthEastSouthWest('╱'), None),
                 ),
                 (
                     Node {
@@ -578,7 +581,7 @@ mod parse {
                         },
                         region: (Region::South, Region::West),
                     },
-                    Edge(None, Brush::NorthEastSouthWest('╱'), None),
+                    &Edge(None, Brush::NorthEastSouthWest('╱'), None),
                 ),
                 (
                     Node {
@@ -605,7 +608,7 @@ mod parse {
                         },
                         region: (Region::South, Region::East),
                     },
-                    Edge(None, Brush::NorthWestSouthEast('╲'), None),
+                    &Edge(None, Brush::NorthWestSouthEast('╲'), None),
                 )
             ]
         );
@@ -627,7 +630,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 1 },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None),
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None),
                 ),
                 (
                     Node {
@@ -642,7 +645,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 1 },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthEastSouthWest('/'), None),
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None),
                 ),
                 (
                     Node {
@@ -657,7 +660,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 0 },
                         region: (Region::South, Region::West),
                     },
-                    Edge(None, Brush::NorthEastSouthWest('/'), None),
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None),
                 ),
                 (
                     Node {
@@ -672,7 +675,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 2 },
                         region: (Region::South, Region::East),
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None),
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None),
                 )
             ]
         );
@@ -710,7 +713,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     Node {
@@ -737,7 +740,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
                     Node {
@@ -764,7 +767,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
                     Node {
@@ -791,7 +794,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 )
             ]
         );
@@ -829,7 +832,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::EastWest('━'), None),
+                    &Edge(None, Brush::EastWest('━'), None),
                 ),
                 (
                     Node {
@@ -856,7 +859,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
                     Node {
@@ -883,7 +886,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
                     Node {
@@ -910,7 +913,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::EastWest('═'), None),
+                    &Edge(None, Brush::EastWest('═'), None),
                 )
             ]
         );
@@ -948,7 +951,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     Node {
@@ -975,7 +978,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
                     Node {
@@ -1002,7 +1005,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
                     Node {
@@ -1029,7 +1032,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 )
             ]
         );
@@ -1069,7 +1072,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
                     Node {
@@ -1096,7 +1099,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     Node {
@@ -1123,7 +1126,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
                     Node {
@@ -1150,7 +1153,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::East),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     Node {
@@ -1177,7 +1180,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
                     Node {
@@ -1204,7 +1207,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     Node {
@@ -1231,7 +1234,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     Node {
@@ -1258,7 +1261,7 @@ mod parse {
                         },
                         region: (Region::South, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 )
             ]
         );
@@ -1298,7 +1301,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 ),
                 (
                     Node {
@@ -1325,7 +1328,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::EastWest('━'), None),
+                    &Edge(None, Brush::EastWest('━'), None),
                 ),
                 (
                     Node {
@@ -1352,7 +1355,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('┃'), None),
+                    &Edge(None, Brush::NorthSouth('┃'), None),
                 ),
                 (
                     Node {
@@ -1379,7 +1382,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::East),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     Node {
@@ -1406,7 +1409,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('┃'), None),
+                    &Edge(None, Brush::NorthSouth('┃'), None),
                 ),
                 (
                     Node {
@@ -1433,7 +1436,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::EastWest('─'), None),
+                    &Edge(None, Brush::EastWest('─'), None),
                 ),
                 (
                     Node {
@@ -1460,7 +1463,7 @@ mod parse {
                         },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::EastWest('━'), None),
+                    &Edge(None, Brush::EastWest('━'), None),
                 ),
                 (
                     Node {
@@ -1487,7 +1490,7 @@ mod parse {
                         },
                         region: (Region::South, Region::Center),
                     },
-                    Edge(None, Brush::NorthSouth('│'), None),
+                    &Edge(None, Brush::NorthSouth('│'), None),
                 )
             ]
         );
@@ -1495,6 +1498,7 @@ mod parse {
 
     mod fuzzer {
         use crate::{clean_string, Brush, Edge, Graph, LineColumn, Node, Region};
+        use pretty_assertions::assert_eq;
 
         parse!(
             crash_a2f152cf0c74db76441c5fed6ab26e4741ab0a71,
@@ -1513,7 +1517,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 0 },
                         region: (Region::Center, Region::East),
                     },
-                    Edge(None, Brush::EastWest('='), None),
+                    &Edge(None, Brush::EastWest('='), None),
                 ),
                 (
                     Node {
@@ -1528,7 +1532,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 0 },
                         region: (Region::Center, Region::East),
                     },
-                    Edge(None, Brush::EastWest('='), None),
+                    &Edge(None, Brush::EastWest('='), None),
                 )
             ]
         );
@@ -1549,7 +1553,7 @@ mod parse {
                     visual: LineColumn { line: 1, column: 1 },
                     region: (Region::Center, Region::East),
                 },
-                Edge(None, Brush::EastWest('='), None),
+                &Edge(None, Brush::EastWest('='), None),
             )]
         );
 
@@ -1570,7 +1574,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 1 },
                         region: (Region::Center, Region::East),
                     },
-                    Edge(None, Brush::EastWest('-'), None),
+                    &Edge(None, Brush::EastWest('-'), None),
                 ),
                 (
                     Node {
@@ -1585,7 +1589,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 2 },
                         region: (Region::Center, Region::East),
                     },
-                    Edge(None, Brush::EastWest('='), None),
+                    &Edge(None, Brush::EastWest('='), None),
                 )
             ]
         );
@@ -1607,7 +1611,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 0 },
                         region: (Region::Center, Region::East),
                     },
-                    Edge(None, Brush::EastWest('='), None),
+                    &Edge(None, Brush::EastWest('='), None),
                 ),
                 (
                     Node {
@@ -1622,7 +1626,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 1 },
                         region: (Region::South, Region::West),
                     },
-                    Edge(None, Brush::NorthEastSouthWest('/'), None),
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None),
                 ),
                 (
                     Node {
@@ -1637,7 +1641,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 3 },
                         region: (Region::South, Region::West),
                     },
-                    Edge(None, Brush::NorthEastSouthWest('/'), None),
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None),
                 )
             ]
         );
@@ -1659,7 +1663,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 0 },
                         region: (Region::South, Region::East),
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None),
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None),
                 ),
                 (
                     Node {
@@ -1674,7 +1678,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 1 },
                         region: (Region::South, Region::East),
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None),
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None),
                 ),
                 (
                     Node {
@@ -1689,7 +1693,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 2 },
                         region: (Region::South, Region::East),
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None),
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None),
                 )
             ]
         );
@@ -1711,7 +1715,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 1 },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None),
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None),
                 ),
                 (
                     Node {
@@ -1726,7 +1730,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 1 },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthEastSouthWest('/'), None),
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None),
                 ),
                 (
                     Node {
@@ -1741,7 +1745,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 1 },
                         region: (Region::South, Region::East),
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None),
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None),
                 ),
                 (
                     Node {
@@ -1756,7 +1760,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 1 },
                         region: (Region::South, Region::West),
                     },
-                    Edge(None, Brush::NorthEastSouthWest('/'), None),
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None),
                 ),
             ]
         );
@@ -1778,7 +1782,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 3 },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None),
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None),
                 ),
                 (
                     Node {
@@ -1793,7 +1797,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 3 },
                         region: (Region::Center, Region::Center),
                     },
-                    Edge(None, Brush::NorthEastSouthWest('/'), None),
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None),
                 ),
                 (
                     Node {
@@ -1808,7 +1812,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 3 },
                         region: (Region::South, Region::East),
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None),
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None),
                 ),
                 (
                     Node {
@@ -1823,7 +1827,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 3 },
                         region: (Region::South, Region::West),
                     },
-                    Edge(None, Brush::NorthEastSouthWest('/'), None),
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None),
                 ),
             ]
         );
@@ -1847,7 +1851,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 1 },
                         region: (Region::Center, Region::Center)
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None)
                 ),
                 (
                     Node {
@@ -1862,7 +1866,7 @@ mod parse {
                         visual: LineColumn { line: 1, column: 1 },
                         region: (Region::Center, Region::Center)
                     },
-                    Edge(None, Brush::NorthEastSouthWest('/'), None)
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None)
                 ),
                 (
                     Node {
@@ -1877,7 +1881,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 0 },
                         region: (Region::Center, Region::Center)
                     },
-                    Edge(None, Brush::NorthEastSouthWest('/'), None)
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None)
                 ),
                 (
                     Node {
@@ -1892,7 +1896,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 2 },
                         region: (Region::South, Region::East)
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None)
                 ),
                 (
                     Node {
@@ -1907,7 +1911,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 0 },
                         region: (Region::Center, Region::Center)
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None)
                 ),
                 (
                     Node {
@@ -1922,7 +1926,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 0 },
                         region: (Region::South, Region::East)
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None)
                 ),
                 (
                     Node {
@@ -1937,7 +1941,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 0 },
                         region: (Region::South, Region::West)
                     },
-                    Edge(None, Brush::NorthEastSouthWest('/'), None)
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None)
                 ),
                 (
                     Node {
@@ -1952,7 +1956,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 1 },
                         region: (Region::South, Region::East)
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None)
                 ),
                 (
                     Node {
@@ -1967,7 +1971,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 3 },
                         region: (Region::Center, Region::Center)
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None)
                 ),
                 (
                     Node {
@@ -1982,7 +1986,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 3 },
                         region: (Region::Center, Region::Center)
                     },
-                    Edge(None, Brush::NorthEastSouthWest('/'), None)
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None)
                 ),
                 (
                     Node {
@@ -1997,7 +2001,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 3 },
                         region: (Region::South, Region::East)
                     },
-                    Edge(None, Brush::NorthWestSouthEast('\\'), None)
+                    &Edge(None, Brush::NorthWestSouthEast('\\'), None)
                 ),
                 (
                     Node {
@@ -2012,7 +2016,7 @@ mod parse {
                         visual: LineColumn { line: 2, column: 3 },
                         region: (Region::South, Region::West)
                     },
-                    Edge(None, Brush::NorthEastSouthWest('/'), None)
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None)
                 )
             ]
         );

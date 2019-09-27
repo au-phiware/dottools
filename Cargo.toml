@@ -13,3 +13,6 @@ readme = "README.md"
 petgraph = "0.4.13"
 unicode-normalization = "0.1.8"
 base64 = "0.10.1"
+
+[dev-dependencies]
+pretty_assertions = "0.6.1"

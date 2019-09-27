@@ -42,7 +42,7 @@ pub struct Node {
     region: (Region, Region),
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Brush {
     NorthSouth(char),
     EastWest(char),
@@ -50,7 +50,7 @@ pub enum Brush {
     NorthWestSouthEast(char),
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Edge(Option<char>, Brush, Option<char>);
 
 #[derive(Debug)]
