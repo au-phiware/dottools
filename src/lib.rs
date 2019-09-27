@@ -196,6 +196,36 @@ macro_rules! add_edge {
     };
 }
 
+macro_rules! add_port {
+    ($self:expr, $start:expr, $end:expr, $edge:expr) => {
+        add_port!($self, $start, $end, $edge,)
+    };
+    ($self:expr, $start:expr, $end:expr, $edge:expr,) => {
+        add_port!(
+            $self,
+            Port {
+                start: $start,
+                end: $end,
+                edge: $edge
+            },
+        )
+    };
+    ($self:expr, $port:expr) => {
+        add_port!($self, $port,)
+    };
+    ($self:expr, $port:expr,) => {
+        let port = $port;
+        tprintln!(
+            "add_port(start: {:?}, end: {:?}, edge: {:?}) [{:?}]",
+            port.start,
+            port.end,
+            port.edge,
+            line!()
+        );
+        $self.ports.push(port);
+    };
+}
+
 impl State {
     fn next(&mut self) {
         let c = self.location.character;
@@ -238,11 +268,7 @@ impl State {
                         Brush::NorthWestSouthEast(_) => (Region::South, Region::East),
                         Brush::NorthEastSouthWest(_) => (Region::South, Region::West),
                     };
-                    self.ports.push(Port {
-                        start: port.start,
-                        end,
-                        edge: port.edge,
-                    });
+                    add_port!(self, port.start, end, port.edge);
                     pass = true;
                     complete_build = self.tx;
                     self.tx = Tx::Initial;
@@ -330,17 +356,13 @@ impl State {
                         let start = end.clone();
                         let mut end = self.location.clone();
                         end.region = (Region::South, Region::Center);
-                        self.ports.push(Port {
-                            start,
-                            end,
-                            edge: Edge(None, Brush::NorthSouth(brush), None),
-                        });
+                        add_port!(self, start, end, Edge(None, Brush::NorthSouth(brush), None));
                     }
                 } else {
-                    self.ports.push(port);
+                    add_port!(self, port);
                 }
             } else if location.line + 1 >= line {
-                self.ports.push(port);
+                add_port!(self, port);
             } else {
                 add_edge!(self, port.start, port.end, port.edge);
             }
@@ -380,11 +402,7 @@ impl State {
                         }
                         _ => Brush::NorthSouth(c),
                     };
-                    self.ports.push(Port {
-                        start,
-                        end,
-                        edge: Edge(None, brush, None),
-                    });
+                    add_port!(self, start, end, Edge(None, brush, None));
                     Tx::Initial
                 }
                 (_, '╳') | (_, 'X') => {
@@ -402,11 +420,7 @@ impl State {
                     }
                     start = end.clone();
                     end.region = (Region::South, Region::East);
-                    self.ports.push(Port {
-                        start,
-                        end,
-                        edge: Edge(None, brush, None),
-                    });
+                    add_port!(self, start, end, Edge(None, brush, None));
                     let brush = Brush::NorthEastSouthWest(match c {
                         '╳' => '╱',
                         _ => '/',
@@ -420,11 +434,7 @@ impl State {
                     }
                     start = end.clone();
                     end.region = (Region::South, Region::West);
-                    self.ports.push(Port {
-                        start,
-                        end,
-                        edge: Edge(None, brush, None),
-                    });
+                    add_port!(self, start, end, Edge(None, brush, None));
                     Tx::Initial
                 }
                 (_, '┌')
@@ -456,11 +466,7 @@ impl State {
                         '┏' | '┎' | '┟' | '┠' | '┢' | '┣' => '┃',
                         _ => '│',
                     };
-                    self.ports.push(Port {
-                        start,
-                        end: self.location,
-                        edge: Edge(None, Brush::NorthSouth(brush), None),
-                    });
+                    add_port!(self, start, self.location, Edge(None, Brush::NorthSouth(brush), None));
                     let brush = match c {
                         '╔' | '╒' | '╞' | '╠' => '═',
                         '┏' | '┍' | '┝' | '┡' | '┢' | '┣' => '━',
@@ -531,7 +537,7 @@ impl State {
                         } {
                             let edge = Edge(None, Brush::NorthSouth(brush), None);
                             end.region = (Region::South, Region::Center);
-                            self.ports.push(Port { start, end, edge });
+                            add_port!(self, start, end, edge);
                         }
                         if let Some(brush) = match c {
                             '┼' | '┽' | '┴' | '┵' | '╁' | '╅' | '┸' | '┹' | '╀' | '├' | '┞'
@@ -597,7 +603,7 @@ impl State {
                                     };
                                 if let Some(brush) = brush {
                                     let edge = Edge(None, Brush::NorthSouth(brush), None);
-                                    self.ports.push(Port { start, end, edge });
+                                    add_port!(self, start, end, edge);
                                 }
                                 start
                             }
