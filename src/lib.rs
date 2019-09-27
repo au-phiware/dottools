@@ -212,6 +212,7 @@ impl State {
         );
         let ports = self.ports.to_owned();
         let mut pass = false;
+        let mut complete_build = Tx::Initial;
         let mut built_north_west_south_east = false;
         let mut built_north_east_south_west = false;
         self.ports = Vec::with_capacity(ports.len() + 1);
@@ -243,6 +244,8 @@ impl State {
                         edge: port.edge,
                     });
                     pass = true;
+                    complete_build = self.tx;
+                    self.tx = Tx::Initial;
                 } else if location.column + 1 == column
                     && match brush {
                         Brush::NorthWestSouthEast(brush) => match brush {
@@ -336,323 +339,327 @@ impl State {
                 } else {
                     self.ports.push(port);
                 }
-            } else if location.line + 1 > line {
+            } else if location.line + 1 >= line {
                 self.ports.push(port);
             } else {
                 add_edge!(self, port.start, port.end, port.edge);
             }
         }
 
-        if pass {
-            return;
-        }
-
-        let mut complete_build = Tx::Initial;
-        self.tx = match (self.tx, c) {
-            (_, '│')
-            | (_, '║')
-            | (_, '┃')
-            | (_, '┊')
-            | (_, '┋')
-            | (_, '┆')
-            | (_, '┇')
-            | (_, '╎')
-            | (_, '╏')
-            | (_, '|')
-            | (_, '\\')
-            | (_, '╲')
-            | (_, '/')
-            | (_, '╱') => {
-                complete_build = self.tx;
-                let mut start = self.location.clone();
-                start.region = (Region::North, Region::Center);
-                let mut end = self.location.clone();
-                end.region = (Region::South, Region::Center);
-                let brush = match c {
-                    '\\' | '╲' => {
-                        start.region.1 = Region::West;
-                        end.region.1 = Region::East;
-                        Brush::NorthWestSouthEast(c)
-                    }
-                    '/' | '╱' => {
-                        start.region.1 = Region::East;
-                        end.region.1 = Region::West;
-                        Brush::NorthEastSouthWest(c)
-                    }
-                    _ => Brush::NorthSouth(c),
-                };
-                self.ports.push(Port {
-                    start,
-                    end,
-                    edge: Edge(None, brush, None),
-                });
-                Tx::Initial
-            }
-            (_, '╳') | (_, 'X') => {
-                complete_build = self.tx;
-                let mut start = self.location.clone();
-                start.region = (Region::North, Region::West);
-                let mut end = self.location.clone();
-                end.region = (Region::Center, Region::Center);
-                let brush = Brush::NorthWestSouthEast(match c {
-                    '╳' => '╲',
-                    _ => '\\',
-                });
-                if !built_north_west_south_east {
-                    add_edge!(self, start, end, Edge(None, brush, None));
-                }
-                start = end.clone();
-                end.region = (Region::South, Region::East);
-                self.ports.push(Port {
-                    start,
-                    end,
-                    edge: Edge(None, brush, None),
-                });
-                let brush = Brush::NorthEastSouthWest(match c {
-                    '╳' => '╱',
-                    _ => '/',
-                });
-                let mut start = self.location.clone();
-                start.region = (Region::North, Region::East);
-                let mut end = self.location.clone();
-                end.region = (Region::Center, Region::Center);
-                if !built_north_east_south_west {
-                    add_edge!(self, start, end, Edge(None, brush, None));
-                }
-                start = end.clone();
-                end.region = (Region::South, Region::West);
-                self.ports.push(Port {
-                    start,
-                    end,
-                    edge: Edge(None, brush, None),
-                });
-                Tx::Initial
-            }
-            (_, '┌')
-            | (_, '╔')
-            | (_, '┏')
-            | (_, '╒')
-            | (_, '╓')
-            | (_, '╭')
-            | (_, '┍')
-            | (_, '┎')
-            | (_, '├')
-            | (_, '┝')
-            | (_, '┞')
-            | (_, '┟')
-            | (_, '┠')
-            | (_, '┡')
-            | (_, '┢')
-            | (_, '┣')
-            | (_, '╞')
-            | (_, '╟')
-            | (_, '╠') => {
-                complete_build = self.tx;
-                let mut start = self.location.clone();
-                start.region = (Region::Center, Region::Center);
-                let mut end = self.location.clone();
-                end.region = (Region::South, Region::Center);
-                let brush = match c {
-                    '╔' | '╓' | '╟' | '╠' => '║',
-                    '┏' | '┎' | '┟' | '┠' | '┢' | '┣' => '┃',
-                    _ => '│',
-                };
-                self.ports.push(Port {
-                    start,
-                    end: self.location,
-                    edge: Edge(None, Brush::NorthSouth(brush), None),
-                });
-                let brush = match c {
-                    '╔' | '╒' | '╞' | '╠' => '═',
-                    '┏' | '┍' | '┝' | '┡' | '┢' | '┣' => '━',
-                    _ => '─',
-                };
-                let edge = Edge(None, Brush::EastWest(brush), None);
-                Tx::Build { start, edge }
-            }
-            (_, '└')
-            | (_, '╚')
-            | (_, '┗')
-            | (_, '╘')
-            | (_, '╙')
-            | (_, '╰')
-            | (_, '┕')
-            | (_, '┖') => {
-                complete_build = self.tx;
-                let mut start = self.location.clone();
-                start.region = (Region::Center, Region::Center);
-                let brush = match c {
-                    '╚' | '╘' => '═',
-                    '┗' | '┕' => '━',
-                    _ => '─',
-                };
-                let edge = Edge(None, Brush::EastWest(brush), None);
-                Tx::Build { start, edge }
-            }
-            (Tx::Initial, _) => match c {
-                '─' | '═' | '━' | '┈' | '┉' | '┄' | '┅' | '╌' | '╍' | '-' | '=' =>
-                {
+        if !pass {
+            self.tx = match (self.tx, c) {
+                (_, '│')
+                | (_, '║')
+                | (_, '┃')
+                | (_, '┊')
+                | (_, '┋')
+                | (_, '┆')
+                | (_, '┇')
+                | (_, '╎')
+                | (_, '╏')
+                | (_, '|')
+                | (_, '\\')
+                | (_, '╲')
+                | (_, '/')
+                | (_, '╱') => {
+                    complete_build = self.tx;
                     let mut start = self.location.clone();
-                    start.region = (Region::Center, Region::West);
-                    let edge = Edge(None, Brush::EastWest(c), None);
-                    Tx::Build { start, edge }
+                    start.region = (Region::North, Region::Center);
+                    let mut end = self.location.clone();
+                    end.region = (Region::South, Region::Center);
+                    let brush = match c {
+                        '\\' | '╲' => {
+                            start.region.1 = Region::West;
+                            end.region.1 = Region::East;
+                            Brush::NorthWestSouthEast(c)
+                        }
+                        '/' | '╱' => {
+                            start.region.1 = Region::East;
+                            end.region.1 = Region::West;
+                            Brush::NorthEastSouthWest(c)
+                        }
+                        _ => Brush::NorthSouth(c),
+                    };
+                    self.ports.push(Port {
+                        start,
+                        end,
+                        edge: Edge(None, brush, None),
+                    });
+                    Tx::Initial
                 }
-                '┘' | '╜' | '╯' | '┚' | '┐' | '╖' | '╮' | '┒' | '┛' | '┙' | '┓' | '┑' | '╝'
-                | '╛' | '╗' | '╕' | '┴' | '┵' | '┶' | '┷' | '╧' | '┤' | '┥' | '┧' | '┪' | '╡'
-                | '┼' | '┽' | '┾' | '┿' | '╁' | '╅' | '╆' | '╈' | '╪' | '┸' | '┹' | '┺' | '┻'
-                | '┦' | '┨' | '┩' | '┫' | '╀' | '╂' | '╃' | '╄' | '╇' | '╉' | '╊' | '╋' | '╨'
-                | '╩' | '╢' | '╣' | '╫' | '╬' => {
+                (_, '╳') | (_, 'X') => {
+                    complete_build = self.tx;
                     let mut start = self.location.clone();
-                    start.region = (Region::Center, Region::West);
+                    start.region = (Region::North, Region::West);
                     let mut end = self.location.clone();
                     end.region = (Region::Center, Region::Center);
+                    let brush = Brush::NorthWestSouthEast(match c {
+                        '╳' => '╲',
+                        _ => '\\',
+                    });
+                    if !built_north_west_south_east {
+                        add_edge!(self, start, end, Edge(None, brush, None));
+                    }
+                    start = end.clone();
+                    end.region = (Region::South, Region::East);
+                    self.ports.push(Port {
+                        start,
+                        end,
+                        edge: Edge(None, brush, None),
+                    });
+                    let brush = Brush::NorthEastSouthWest(match c {
+                        '╳' => '╱',
+                        _ => '/',
+                    });
+                    let mut start = self.location.clone();
+                    start.region = (Region::North, Region::East);
+                    let mut end = self.location.clone();
+                    end.region = (Region::Center, Region::Center);
+                    if !built_north_east_south_west {
+                        add_edge!(self, start, end, Edge(None, brush, None));
+                    }
+                    start = end.clone();
+                    end.region = (Region::South, Region::West);
+                    self.ports.push(Port {
+                        start,
+                        end,
+                        edge: Edge(None, brush, None),
+                    });
+                    Tx::Initial
+                }
+                (_, '┌')
+                | (_, '╔')
+                | (_, '┏')
+                | (_, '╒')
+                | (_, '╓')
+                | (_, '╭')
+                | (_, '┍')
+                | (_, '┎')
+                | (_, '├')
+                | (_, '┝')
+                | (_, '┞')
+                | (_, '┟')
+                | (_, '┠')
+                | (_, '┡')
+                | (_, '┢')
+                | (_, '┣')
+                | (_, '╞')
+                | (_, '╟')
+                | (_, '╠') => {
+                    complete_build = self.tx;
+                    let mut start = self.location.clone();
+                    start.region = (Region::Center, Region::Center);
+                    let mut end = self.location.clone();
+                    end.region = (Region::South, Region::Center);
                     let brush = match c {
-                        '┛' | '┙' | '┓' | '┑' | '┵' | '┷' | '┥' | '┪' | '┽' | '┿' | '╅' | '╈'
-                        | '┹' | '┻' | '┩' | '┫' | '╃' | '╇' | '╉' | '╋' => '━',
-                        '╝' | '╛' | '╗' | '╕' | '╧' | '╡' | '╪' | '╩' | '╣' | '╬' => {
-                            '═'
-                        }
+                        '╔' | '╓' | '╟' | '╠' => '║',
+                        '┏' | '┎' | '┟' | '┠' | '┢' | '┣' => '┃',
+                        _ => '│',
+                    };
+                    self.ports.push(Port {
+                        start,
+                        end: self.location,
+                        edge: Edge(None, Brush::NorthSouth(brush), None),
+                    });
+                    let brush = match c {
+                        '╔' | '╒' | '╞' | '╠' => '═',
+                        '┏' | '┍' | '┝' | '┡' | '┢' | '┣' => '━',
                         _ => '─',
                     };
                     let edge = Edge(None, Brush::EastWest(brush), None);
-                    add_edge!(self, start, end, edge);
-                    start.region = (Region::Center, Region::Center);
-                    if let Some(brush) = match c {
-                        '┐' | '╮' | '┑' | '╕' | '├' | '┝' | '┞' | '┡' | '╞' | '┤' | '┥' | '╡'
-                        | '┼' | '┽' | '┾' | '┿' | '╪' | '┦' | '┩' | '╀' | '╃' | '╄' | '╇' => {
-                            Some('│')
-                        }
-                        '┓' | '┒' | '┟' | '┠' | '┢' | '┣' | '┧' | '┪' | '╁' | '╅' | '╆' | '╈'
-                        | '┨' | '┫' | '╂' | '╉' | '╊' | '╋' => Some('┃'),
-                        '╗' | '╖' | '╟' | '╠' | '╢' | '╣' | '╫' | '╬' => Some('║'),
-                        _ => None,
-                    } {
-                        let edge = Edge(None, Brush::NorthSouth(brush), None);
-                        end.region = (Region::South, Region::Center);
-                        self.ports.push(Port { start, end, edge });
-                    }
-                    if let Some(brush) = match c {
-                        '┼' | '┽' | '┴' | '┵' | '╁' | '╅' | '┸' | '┹' | '╀' | '├' | '┞' | '┟'
-                        | '┠' | '╟' | '╂' | '╃' | '╉' | '╨' | '╫' => Some('─'),
-                        '╋' | '┶' | '┷' | '┾' | '┿' | '╆' | '╈' | '┺' | '┻' | '┝' | '┡' | '┢'
-                        | '┣' | '╄' | '╇' | '╊' => Some('━'),
-                        '╬' | '╩' | '╧' | '╪' | '╞' | '╠' => Some('═'),
-                        _ => None,
-                    } {
-                        let edge = Edge(None, Brush::EastWest(brush), None);
-                        Tx::Build { start, edge }
-                    } else {
-                        Tx::Initial
-                    }
+                    Tx::Build { start, edge }
                 }
-                _ => Tx::Initial,
-            },
-            (Tx::Build { start, edge }, _) => match edge.1 {
-                Brush::EastWest(brush) if c == brush => self.tx,
-                _ => {
-                    let end = match edge.1 {
-                        Brush::EastWest(brush)
-                            if match brush {
-                                '─' | '┈' | '┄' | '╌' => match c {
-                                    '┘' | '╜' | '╯' | '┚' | '┐' | '╖' | '╮' | '┒' | '┬' | '┮'
-                                    | '┰' | '┲' | '┴' | '┶' | '┤' | '┧' | '┼' | '┾' | '╁' | '╆'
-                                    | '┸' | '┺' | '┦' | '┨' | '╀' | '╂' | '╄' | '╊' | '╨' | '╢'
-                                    | '╫' => true,
-                                    _ => false,
-                                },
-                                '━' | '┉' | '┅' | '╍' => match c {
-                                    '┛' | '┙' | '┓' | '┑' | '┭' | '┯' | '┱' | '┳' | '┵' | '┷'
-                                    | '┥' | '┪' | '┽' | '┿' | '╅' | '╈' | '┹' | '┻' | '┩' | '┫'
-                                    | '╃' | '╇' | '╉' | '╋' => true,
-                                    _ => false,
-                                },
-                                '═' => match c {
-                                    '╝' | '╛' | '╗' | '╕' | '╦' | '╤' | '╧' | '╡' | '╪' | '╩'
-                                    | '╣' | '╬' => true,
-                                    _ => false,
-                                },
-                                _ => false,
-                            } =>
-                        {
-                            let mut start = self.location;
-                            start.region = (Region::Center, Region::Center);
-                            let mut end = self.location;
-                            end.region = (Region::South, Region::Center);
-                            let brush = match c {
-                                '┐' | '┑' | '╮' | '╕' | '├' | '┝' | '┞' | '┡' | '┬' | '┭' | '┮'
-                                | '┯' | '╞' | '╤' | '┤' | '┥' | '╡' | '┼' | '┽' | '┾' | '┿'
-                                | '╪' | '┦' | '┩' | '╀' | '╃' | '╄' | '╇' => {
-                                    Some('│')
-                                }
-                                '╗' | '╖' | '╟' | '╠' | '╥' | '╦' | '╢' | '╣' | '╫' | '╬' => {
-                                    Some('║')
-                                }
-                                '┓' | '┒' | '┟' | '┠' | '┢' | '┣' | '┧' | '┪' | '┨' | '┫' | '┰'
-                                | '┱' | '┲' | '┳' | '╁' | '╅' | '╆' | '╈' | '╂' | '╉' | '╊'
-                                | '╋' => Some('┃'),
-                                _ => None,
-                            };
-                            if let Some(brush) = brush {
-                                let edge = Edge(None, Brush::NorthSouth(brush), None);
-                                self.ports.push(Port { start, end, edge });
-                            }
-                            start
-                        }
-                        _ => {
-                            if let Some(brush) = match c {
-                                '┼' | '┴' | '┬' | '┰' | '╁' | '┸' | '╀' | '╂' | '┶' | '┾' | '╆'
-                                | '┺' | '┮' | '┲' | '╄' | '╊' | '╨' | '╫' => {
-                                    Some('─')
-                                }
-
-                                '╋' | '┽' | '┵' | '┭' | '┱' | '╅' | '┹' | '╃' | '╉' | '┷' | '┿'
-                                | '╈' | '┻' | '┯' | '┳' | '╇' => Some('━'),
-
-                                '╬' | '╧' | '╪' | '╩' | '╤' | '╦' => Some('═'),
-                                _ => None,
-                            } {
-                                let mut start = self.location.clone();
-                                start.region = (Region::Center, Region::West);
-                                let mut end = self.location.clone();
-                                end.region = (Region::Center, Region::Center);
-                                let edge = Edge(None, Brush::EastWest(brush), None);
-                                add_edge!(self, start, end, edge);
-                            }
-                            let mut end = self.previous_location.clone();
-                            end.region = (Region::Center, Region::East);
-                            end
-                        }
+                (_, '└')
+                | (_, '╚')
+                | (_, '┗')
+                | (_, '╘')
+                | (_, '╙')
+                | (_, '╰')
+                | (_, '┕')
+                | (_, '┖') => {
+                    complete_build = self.tx;
+                    let mut start = self.location.clone();
+                    start.region = (Region::Center, Region::Center);
+                    let brush = match c {
+                        '╚' | '╘' => '═',
+                        '┗' | '┕' => '━',
+                        _ => '─',
                     };
-                    add_edge!(self, start, end, edge);
-                    let mut start = self.location;
-                    start.region = (Region::Center, Region::Center);
-                    if let Some(brush) = match c {
-                        '┼' | '┴' | '┵' | '├' | '┞' | '┟' | '┠' | '┬' | '┭' | '┰' | '┱' | '┽'
-                        | '╁' | '╅' | '┸' | '┹' | '╀' | '╂' | '╃' | '╉' | '╨' | '╫' => {
-                            Some('─')
-                        }
-                        '╋' | '┶' | '┷' | '┾' | '┿' | '╆' | '╈' | '┺' | '┻' | '┮' | '┯' | '┲'
-                        | '┳' | '┝' | '┡' | '┢' | '┣' | '╄' | '╇' | '╊' => {
-                            Some('━')
-                        }
-                        '╬' | '╧' | '╪' | '╩' | '╤' | '╦' | '╞' | '╠' => Some('═'),
-                        '-' | '=' | '─' | '┈' | '┄' | '╌' | '━' | '┉' | '┅' | '╍' | '═' =>
-                        {
-                            start.region = (Region::Center, Region::West);
-                            Some(c)
-                        }
-                        _ => None,
-                    } {
-                        Tx::Build {
-                            start,
-                            edge: Edge(None, Brush::EastWest(brush), None),
-                        }
-                    } else {
-                        Tx::Initial
-                    }
+                    let edge = Edge(None, Brush::EastWest(brush), None);
+                    Tx::Build { start, edge }
                 }
-            },
-        };
+                (Tx::Initial, _) => match c {
+                    '─' | '═' | '━' | '┈' | '┉' | '┄' | '┅' | '╌' | '╍' | '-' | '=' =>
+                    {
+                        let mut start = self.location.clone();
+                        start.region = (Region::Center, Region::West);
+                        let edge = Edge(None, Brush::EastWest(c), None);
+                        Tx::Build { start, edge }
+                    }
+                    '┘' | '╜' | '╯' | '┚' | '┐' | '╖' | '╮' | '┒' | '┛' | '┙' | '┓' | '┑' | '╝'
+                    | '╛' | '╗' | '╕' | '┴' | '┵' | '┶' | '┷' | '╧' | '┤' | '┥' | '┧' | '┪'
+                    | '╡' | '┼' | '┽' | '┾' | '┿' | '╁' | '╅' | '╆' | '╈' | '╪' | '┸' | '┹'
+                    | '┺' | '┻' | '┦' | '┨' | '┩' | '┫' | '╀' | '╂' | '╃' | '╄' | '╇' | '╉'
+                    | '╊' | '╋' | '╨' | '╩' | '╢' | '╣' | '╫' | '╬' => {
+                        let mut start = self.location.clone();
+                        start.region = (Region::Center, Region::West);
+                        let mut end = self.location.clone();
+                        end.region = (Region::Center, Region::Center);
+                        let brush = match c {
+                            '┛' | '┙' | '┓' | '┑' | '┵' | '┷' | '┥' | '┪' | '┽' | '┿' | '╅'
+                            | '╈' | '┹' | '┻' | '┩' | '┫' | '╃' | '╇' | '╉' | '╋' => {
+                                '━'
+                            }
+                            '╝' | '╛' | '╗' | '╕' | '╧' | '╡' | '╪' | '╩' | '╣' | '╬' => {
+                                '═'
+                            }
+                            _ => '─',
+                        };
+                        let edge = Edge(None, Brush::EastWest(brush), None);
+                        add_edge!(self, start, end, edge);
+                        start.region = (Region::Center, Region::Center);
+                        if let Some(brush) = match c {
+                            '┐' | '╮' | '┑' | '╕' | '├' | '┝' | '┞' | '┡' | '╞' | '┤' | '┥'
+                            | '╡' | '┼' | '┽' | '┾' | '┿' | '╪' | '┦' | '┩' | '╀' | '╃' | '╄'
+                            | '╇' => Some('│'),
+                            '┓' | '┒' | '┟' | '┠' | '┢' | '┣' | '┧' | '┪' | '╁' | '╅' | '╆'
+                            | '╈' | '┨' | '┫' | '╂' | '╉' | '╊' | '╋' => Some('┃'),
+                            '╗' | '╖' | '╟' | '╠' | '╢' | '╣' | '╫' | '╬' => {
+                                Some('║')
+                            }
+                            _ => None,
+                        } {
+                            let edge = Edge(None, Brush::NorthSouth(brush), None);
+                            end.region = (Region::South, Region::Center);
+                            self.ports.push(Port { start, end, edge });
+                        }
+                        if let Some(brush) = match c {
+                            '┼' | '┽' | '┴' | '┵' | '╁' | '╅' | '┸' | '┹' | '╀' | '├' | '┞'
+                            | '┟' | '┠' | '╟' | '╂' | '╃' | '╉' | '╨' | '╫' => {
+                                Some('─')
+                            }
+                            '╋' | '┶' | '┷' | '┾' | '┿' | '╆' | '╈' | '┺' | '┻' | '┝' | '┡'
+                            | '┢' | '┣' | '╄' | '╇' | '╊' => Some('━'),
+                            '╬' | '╩' | '╧' | '╪' | '╞' | '╠' => Some('═'),
+                            _ => None,
+                        } {
+                            let edge = Edge(None, Brush::EastWest(brush), None);
+                            Tx::Build { start, edge }
+                        } else {
+                            Tx::Initial
+                        }
+                    }
+                    _ => Tx::Initial,
+                },
+                (Tx::Build { start, edge }, _) => match edge.1 {
+                    Brush::EastWest(brush) if c == brush => self.tx,
+                    _ => {
+                        let end = match edge.1 {
+                            Brush::EastWest(brush)
+                                if match brush {
+                                    '─' | '┈' | '┄' | '╌' => match c {
+                                        '┘' | '╜' | '╯' | '┚' | '┐' | '╖' | '╮' | '┒' | '┬'
+                                        | '┮' | '┰' | '┲' | '┴' | '┶' | '┤' | '┧' | '┼' | '┾'
+                                        | '╁' | '╆' | '┸' | '┺' | '┦' | '┨' | '╀' | '╂' | '╄'
+                                        | '╊' | '╨' | '╢' | '╫' => true,
+                                        _ => false,
+                                    },
+                                    '━' | '┉' | '┅' | '╍' => match c {
+                                        '┛' | '┙' | '┓' | '┑' | '┭' | '┯' | '┱' | '┳' | '┵'
+                                        | '┷' | '┥' | '┪' | '┽' | '┿' | '╅' | '╈' | '┹' | '┻'
+                                        | '┩' | '┫' | '╃' | '╇' | '╉' | '╋' => true,
+                                        _ => false,
+                                    },
+                                    '═' => match c {
+                                        '╝' | '╛' | '╗' | '╕' | '╦' | '╤' | '╧' | '╡' | '╪'
+                                        | '╩' | '╣' | '╬' => true,
+                                        _ => false,
+                                    },
+                                    _ => false,
+                                } =>
+                            {
+                                let mut start = self.location;
+                                start.region = (Region::Center, Region::Center);
+                                let mut end = self.location;
+                                end.region = (Region::South, Region::Center);
+                                let brush =
+                                    match c {
+                                        '┐' | '┑' | '╮' | '╕' | '├' | '┝' | '┞' | '┡' | '┬'
+                                        | '┭' | '┮' | '┯' | '╞' | '╤' | '┤' | '┥' | '╡' | '┼'
+                                        | '┽' | '┾' | '┿' | '╪' | '┦' | '┩' | '╀' | '╃' | '╄'
+                                        | '╇' => Some('│'),
+                                        '╗' | '╖' | '╟' | '╠' | '╥' | '╦' | '╢' | '╣' | '╫'
+                                        | '╬' => Some('║'),
+                                        '┓' | '┒' | '┟' | '┠' | '┢' | '┣' | '┧' | '┪' | '┨'
+                                        | '┫' | '┰' | '┱' | '┲' | '┳' | '╁' | '╅' | '╆' | '╈'
+                                        | '╂' | '╉' | '╊' | '╋' => Some('┃'),
+                                        _ => None,
+                                    };
+                                if let Some(brush) = brush {
+                                    let edge = Edge(None, Brush::NorthSouth(brush), None);
+                                    self.ports.push(Port { start, end, edge });
+                                }
+                                start
+                            }
+                            _ => {
+                                if let Some(brush) = match c {
+                                    '┼' | '┴' | '┬' | '┰' | '╁' | '┸' | '╀' | '╂' | '┶' | '┾'
+                                    | '╆' | '┺' | '┮' | '┲' | '╄' | '╊' | '╨' | '╫' => {
+                                        Some('─')
+                                    }
+
+                                    '╋' | '┽' | '┵' | '┭' | '┱' | '╅' | '┹' | '╃' | '╉' | '┷'
+                                    | '┿' | '╈' | '┻' | '┯' | '┳' | '╇' => Some('━'),
+
+                                    '╬' | '╧' | '╪' | '╩' | '╤' | '╦' => Some('═'),
+                                    _ => None,
+                                } {
+                                    let mut start = self.location.clone();
+                                    start.region = (Region::Center, Region::West);
+                                    let mut end = self.location.clone();
+                                    end.region = (Region::Center, Region::Center);
+                                    let edge = Edge(None, Brush::EastWest(brush), None);
+                                    add_edge!(self, start, end, edge);
+                                }
+                                let mut end = self.previous_location.clone();
+                                end.region = (Region::Center, Region::East);
+                                end
+                            }
+                        };
+                        add_edge!(self, start, end, edge);
+                        let mut start = self.location;
+                        start.region = (Region::Center, Region::Center);
+                        if let Some(brush) = match c {
+                            '┼' | '┴' | '┵' | '├' | '┞' | '┟' | '┠' | '┬' | '┭' | '┰' | '┱'
+                            | '┽' | '╁' | '╅' | '┸' | '┹' | '╀' | '╂' | '╃' | '╉' | '╨' | '╫' => {
+                                Some('─')
+                            }
+                            '╋' | '┶' | '┷' | '┾' | '┿' | '╆' | '╈' | '┺' | '┻' | '┮' | '┯'
+                            | '┲' | '┳' | '┝' | '┡' | '┢' | '┣' | '╄' | '╇' | '╊' => {
+                                Some('━')
+                            }
+                            '╬' | '╧' | '╪' | '╩' | '╤' | '╦' | '╞' | '╠' => {
+                                Some('═')
+                            }
+                            '-' | '=' | '─' | '┈' | '┄' | '╌' | '━' | '┉' | '┅' | '╍' | '═' =>
+                            {
+                                start.region = (Region::Center, Region::West);
+                                Some(c)
+                            }
+                            _ => None,
+                        } {
+                            Tx::Build {
+                                start,
+                                edge: Edge(None, Brush::EastWest(brush), None),
+                            }
+                        } else {
+                            Tx::Initial
+                        }
+                    }
+                },
+            };
+        }
+
         if let Tx::Build { start, edge } = complete_build {
             let mut end = self.previous_location.clone();
             end.region = (Region::Center, Region::East);
