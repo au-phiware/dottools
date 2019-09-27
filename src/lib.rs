@@ -8,11 +8,29 @@ mod tests;
 
 use petgraph::graphmap::UnGraphMap;
 use std::cmp::Ordering;
+#[cfg(test)]
+use std::env;
 use std::fmt;
 use std::iter::repeat;
 use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
 use unicode_normalization::char::is_combining_mark;
+
+macro_rules! tprintln {
+    ($($_:tt)*) => {
+        #[cfg(test)]
+        {
+            if env::var("DEBUG")
+                .as_ref()
+                .map(String::as_ref)
+                .unwrap_or("0")
+                == "1"
+            {
+                println!("{}", format!($($_)*));
+            }
+        }
+    };
+}
 
 #[derive(Debug)]
 pub enum Error {
@@ -167,6 +185,13 @@ macro_rules! add_edge {
     };
     ($self:expr, $start:expr, $end:expr, $edge:expr,) => {
         let (start, end, edge) = ($start, $end, $edge);
+        tprintln!(
+            "add_edge(start: {:?}, end: {:?}, edge: {:?}) [{:?}]",
+            start,
+            end,
+            edge,
+            line!()
+        );
         $self.graph.add_edge(start, end, edge)
     };
 }
@@ -174,7 +199,17 @@ macro_rules! add_edge {
 impl State {
     fn next(&mut self) {
         let c = self.location.character;
+        tprintln!("tx: {:?};", self.tx);
+        tprintln!("ports: {:?};", self.ports);
         let LineColumn { line, column } = self.location.visual;
+        tprintln!(
+            "next: {:?}; line: {:?}/{:?}; column: {:?}/{:?};",
+            c,
+            line,
+            self.location.source.line,
+            column,
+            self.location.source.column
+        );
         let ports = self.ports.to_owned();
         let mut pass = false;
         let mut built_north_west_south_east = false;
@@ -190,6 +225,11 @@ impl State {
                     Brush::NorthWestSouthEast(brush) => location.column + 1 == column && brush == c,
                     Brush::NorthEastSouthWest(brush) => location.column == column + 1 && brush == c,
                 } {
+                    tprintln!(
+                        "...continuing port, line: {:?}; column: {:?};",
+                        location.line,
+                        location.column
+                    );
                     let mut end = self.location.clone();
                     end.region = match brush {
                         Brush::NorthSouth(_) => (Region::South, Region::Center),
@@ -223,6 +263,7 @@ impl State {
                     end.region = (Region::Center, Region::Center);
                     add_edge!(self, port.start, end, port.edge);
                     built_north_west_south_east = true;
+                    tprintln!("built_north_west_south_east");
                 } else if location.column == column + 1
                     && match brush {
                         Brush::NorthEastSouthWest(brush) => match brush {
@@ -243,6 +284,7 @@ impl State {
                     end.region = (Region::Center, Region::Center);
                     add_edge!(self, port.start, end, port.edge);
                     built_north_east_south_west = true;
+                    tprintln!("built_north_east_south_west");
                 } else if location.column == column
                     && match brush {
                         Brush::NorthSouth(brush) => match brush {
@@ -640,6 +682,9 @@ impl State {
 
     fn finish(&mut self) {
         self.next();
+        tprintln!("finished");
+        tprintln!("tx: {:?}", self.tx);
+        tprintln!("ports: {:?}", self.ports);
     }
 }
 
