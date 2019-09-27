@@ -2179,5 +2179,43 @@ mod parse {
                 )
             ]
         );
+
+        parse!(
+            crash_ee047d9ed0f8e590f9381417b5d1c26a210a9627,
+            // ╿$
+            String::from_utf8(base64::decode("4pW/JA==").unwrap()).unwrap(),
+            [
+                (
+                    Node {
+                        character: '╿',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::North, Region::Center),
+                    },
+                    Node {
+                        character: '╿',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    &Edge(None, Brush::NorthSouth('┃'), None),
+                ),
+                (
+                    Node {
+                        character: '╿',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Node {
+                        character: '╿',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::South, Region::Center),
+                    },
+                    &Edge(None, Brush::NorthSouth('│'), None),
+                )
+            ]
+        );
     }
 }

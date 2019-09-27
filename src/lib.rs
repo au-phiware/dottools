@@ -243,6 +243,7 @@ impl State {
         let ports = self.ports.to_owned();
         let mut pass = false;
         let mut complete_build = Tx::Initial;
+        let mut built_north_south = false;
         let mut built_north_west_south_east = false;
         let mut built_north_east_south_west = false;
         self.ports = Vec::with_capacity(ports.len() + 1);
@@ -343,6 +344,7 @@ impl State {
                     let mut end = self.location.clone();
                     end.region = (Region::Center, Region::Center);
                     add_edge!(self, port.start, end, port.edge);
+                    built_north_south = true;
                     if let Some(brush) = match c {
                         '├' | '┝' | '┤' | '┥' | '╞' | '╡' | '┼' | '┽' | '┾' | '┿' | '╪' | '┞'
                         | '┡' | '┦' | '┩' | '╀' | '╃' | '╄' | '╇' | '╿' => {
@@ -369,6 +371,30 @@ impl State {
         }
 
         if !pass {
+            if !built_north_south {
+                if let Some(brush) = match c {
+                    '└' | '┕' | '┘' | '┙' | '├' | '┝' | '┟' | '┢' | '┣' | '┤' | '┥' | '┧' | '┪'
+                    | '┴' | '┵' | '┶' | '┷' | '┼' | '┽' | '┾' | '┿' | '╁' | '╅' | '╆' | '╈'
+                    | '╘' | '╛' | '╞' | '╡' | '╧' | '╪' | '╯' | '╰' | '╵' | '╽' => {
+                        Some('│')
+                    }
+                    '┖' | '┗' | '┚' | '┛' | '┞' | '┠' | '┡' | '┦' | '┨' | '┩' | '┫' | '┸' | '┹'
+                    | '┺' | '┻' | '╀' | '╂' | '╃' | '╄' | '╇' | '╉' | '╊' | '╋' | '╹' | '╿' => {
+                        Some('┃')
+                    }
+                    '╙' | '╚' | '╜' | '╝' | '╟' | '╠' | '╢' | '╣' | '╨' | '╩' | '╫' | '╬' => {
+                        Some('║')
+                    }
+                    _ => None,
+                } {
+                    let mut start = self.location.clone();
+                    start.region = (Region::North, Region::Center);
+                    let mut end = self.location.clone();
+                    end.region = (Region::Center, Region::Center);
+                    add_edge!(self, start, end, Edge(None, Brush::NorthSouth(brush), None));
+                }
+            }
+
             self.tx = match (self.tx, c) {
                 (_, '│')
                 | (_, '║')
@@ -445,6 +471,8 @@ impl State {
                 | (_, '╭')
                 | (_, '┍')
                 | (_, '┎')
+                | (_, '╿')
+                | (_, '╽')
                 | (_, '├')
                 | (_, '┝')
                 | (_, '┞')
@@ -466,14 +494,18 @@ impl State {
                         '┏' | '┎' | '┟' | '┠' | '┢' | '┣' => '┃',
                         _ => '│',
                     };
-                    add_port!(self, start, self.location, Edge(None, Brush::NorthSouth(brush), None));
-                    let brush = match c {
-                        '╔' | '╒' | '╞' | '╠' => '═',
-                        '┏' | '┍' | '┝' | '┡' | '┢' | '┣' => '━',
-                        _ => '─',
-                    };
-                    let edge = Edge(None, Brush::EastWest(brush), None);
-                    Tx::Build { start, edge }
+                    add_port!(self, start, end, Edge(None, Brush::NorthSouth(brush), None));
+                    if let Some(brush) = match c {
+                        '╿' | '╽' => None,
+                        '╔' | '╒' | '╞' | '╠' => Some('═'),
+                        '┏' | '┍' | '┝' | '┡' | '┢' | '┣' => Some('━'),
+                        _ => Some('─'),
+                    } {
+                        let edge = Edge(None, Brush::EastWest(brush), None);
+                        Tx::Build { start, edge }
+                    } else {
+                        Tx::Initial
+                    }
                 }
                 (_, '└')
                 | (_, '╚')
