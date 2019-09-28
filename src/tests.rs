@@ -2288,5 +2288,42 @@ mod parse {
                 )
             ]
         );
+
+        parse!(
+            crash_684fc0c85b8895ad0165fec4cfad85581b7c8360,
+            String::from_utf8(base64::decode("4pW+").unwrap()).unwrap(),
+            [
+                (
+                    Node {
+                        character: '╾',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::West),
+                    },
+                    Node {
+                        character: '╾',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    &Edge(None, Brush::EastWest('━'), None),
+                ),
+                (
+                    Node {
+                        character: '╾',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::Center),
+                    },
+                    Node {
+                        character: '╾',
+                        source: LineColumn { line: 1, column: 0 },
+                        visual: LineColumn { line: 1, column: 0 },
+                        region: (Region::Center, Region::East),
+                    },
+                    &Edge(None, Brush::EastWest('─'), None),
+                )
+            ]
+        );
     }
 }
