@@ -481,6 +481,8 @@ impl State {
                 | (_, '╭')
                 | (_, '┍')
                 | (_, '┎')
+                | (_, '╷')
+                | (_, '╻')
                 | (_, '╿')
                 | (_, '╽')
                 | (_, '├')
@@ -501,12 +503,12 @@ impl State {
                     end.region = (Region::South, Region::Center);
                     let brush = match c {
                         '╔' | '╓' | '╟' | '╠' => '║',
-                        '┏' | '┎' | '┟' | '┠' | '┢' | '┣' => '┃',
+                        '┏' | '┎' | '┟' | '┠' | '┢' | '┣' | '╻' | '╽' => '┃',
                         _ => '│',
                     };
                     add_port!(self, start, end, Edge(None, Brush::NorthSouth(brush), None));
                     if let Some(brush) = match c {
-                        '╿' | '╽' => None,
+                        '╿' | '╽' | '╷' | '╻' => None,
                         '╔' | '╒' | '╞' | '╠' => Some('═'),
                         '┏' | '┍' | '┝' | '┡' | '┢' | '┣' => Some('━'),
                         _ => Some('─'),

@@ -826,3 +826,23 @@ parse!(
         )
     ]
 );
+
+parse!(
+    crash_e8724022d4d356a55083c9a2766944ce750c0c40,
+    String::from_utf8(base64::decode("4pW325jboCI=").unwrap()).unwrap(),
+    [(
+        Node {
+            character: '╷',
+            source: LineColumn { line: 1, column: 0 },
+            visual: LineColumn { line: 1, column: 0 },
+            region: (Region::Center, Region::Center),
+        },
+        Node {
+            character: '╷',
+            source: LineColumn { line: 1, column: 0 },
+            visual: LineColumn { line: 1, column: 0 },
+            region: (Region::South, Region::Center),
+        },
+        &Edge(None, Brush::NorthSouth('│'), None),
+    )]
+);
