@@ -2217,5 +2217,76 @@ mod parse {
                 )
             ]
         );
+
+        parse!(
+            crash_0840baa337e4477c28876adfce0bb7517f68ddc9,
+            //   -/
+            //  -/
+            //  //
+            // /
+            String::from_utf8(base64::decode("OTItLwo5LS8KOS8vCi8=").unwrap()).unwrap(),
+            [
+                (
+                    Node {
+                        character: '-',
+                        source: LineColumn { line: 1, column: 2 },
+                        visual: LineColumn { line: 1, column: 2 },
+                        region: (Region::Center, Region::West),
+                    },
+                    Node {
+                        character: '-',
+                        source: LineColumn { line: 1, column: 2 },
+                        visual: LineColumn { line: 1, column: 2 },
+                        region: (Region::Center, Region::East),
+                    },
+                    &Edge(None, Brush::EastWest('-'), None),
+                ),
+                (
+                    Node {
+                        character: '-',
+                        source: LineColumn { line: 2, column: 1 },
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::Center, Region::West),
+                    },
+                    Node {
+                        character: '-',
+                        source: LineColumn { line: 2, column: 1 },
+                        visual: LineColumn { line: 2, column: 1 },
+                        region: (Region::Center, Region::East),
+                    },
+                    &Edge(None, Brush::EastWest('-'), None),
+                ),
+                (
+                    Node {
+                        character: '/',
+                        source: LineColumn { line: 1, column: 3 },
+                        visual: LineColumn { line: 1, column: 3 },
+                        region: (Region::North, Region::East),
+                    },
+                    Node {
+                        character: '/',
+                        source: LineColumn { line: 4, column: 0 },
+                        visual: LineColumn { line: 4, column: 0 },
+                        region: (Region::South, Region::West),
+                    },
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None),
+                ),
+                (
+                    Node {
+                        character: '/',
+                        source: LineColumn { line: 3, column: 2 },
+                        visual: LineColumn { line: 3, column: 2 },
+                        region: (Region::North, Region::East),
+                    },
+                    Node {
+                        character: '/',
+                        source: LineColumn { line: 3, column: 2 },
+                        visual: LineColumn { line: 3, column: 2 },
+                        region: (Region::South, Region::West),
+                    },
+                    &Edge(None, Brush::NorthEastSouthWest('/'), None),
+                )
+            ]
+        );
     }
 }

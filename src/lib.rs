@@ -819,7 +819,9 @@ impl fmt::Display for Graph {
                     (repeat(v.line).zip(v.column + 1..u.column).collect(), brush)
                 }
                 Brush::NorthEastSouthWest(brush) => (
-                    (v.line + 1..u.line).zip(u.column + 1..v.column).collect(),
+                    (v.line + 1..u.line)
+                        .zip((u.column + 1..v.column).rev())
+                        .collect(),
                     brush,
                 ),
                 Brush::NorthWestSouthEast(brush) => (
@@ -827,6 +829,7 @@ impl fmt::Display for Graph {
                     brush,
                 ),
             };
+            tprintln!("brush: {:?} line_columns: {:?}", brush, line_columns);
             for (line, column) in line_columns {
                 draw(LineColumn { line, column }, brush);
             }
