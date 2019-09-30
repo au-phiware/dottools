@@ -79,6 +79,184 @@ parse!(
 );
 
 parse!(
+    mixed_edge,
+    "=─",
+    [
+        (
+            Node {
+                character: '=',
+                source: LineColumn { line: 1, column: 0 },
+                visual: LineColumn { line: 1, column: 0 },
+                region: (Region::Center, Region::West),
+            },
+            Node {
+                character: '=',
+                source: LineColumn { line: 1, column: 0 },
+                visual: LineColumn { line: 1, column: 0 },
+                region: (Region::Center, Region::East),
+            },
+            &Edge(None, Brush::EastWest('='), None),
+        ),
+        (
+            Node {
+                character: '─',
+                source: LineColumn { line: 1, column: 1 },
+                visual: LineColumn { line: 1, column: 1 },
+                region: (Region::Center, Region::West),
+            },
+            Node {
+                character: '─',
+                source: LineColumn { line: 1, column: 1 },
+                visual: LineColumn { line: 1, column: 1 },
+                region: (Region::Center, Region::East),
+            },
+            &Edge(None, Brush::EastWest('─'), None),
+        )
+    ]
+);
+
+parse!(
+    mixed_edge_multi,
+    "=╼",
+    [
+        (
+            Node {
+                character: '=',
+                source: LineColumn { line: 1, column: 0 },
+                visual: LineColumn { line: 1, column: 0 },
+                region: (Region::Center, Region::West),
+            },
+            Node {
+                character: '=',
+                source: LineColumn { line: 1, column: 0 },
+                visual: LineColumn { line: 1, column: 0 },
+                region: (Region::Center, Region::East),
+            },
+            &Edge(None, Brush::EastWest('='), None),
+        ),
+        (
+            Node {
+                character: '╼',
+                source: LineColumn { line: 1, column: 1 },
+                visual: LineColumn { line: 1, column: 1 },
+                region: (Region::Center, Region::West),
+            },
+            Node {
+                character: '╼',
+                source: LineColumn { line: 1, column: 1 },
+                visual: LineColumn { line: 1, column: 1 },
+                region: (Region::Center, Region::Center),
+            },
+            &Edge(None, Brush::EastWest('─'), None),
+        ),
+        (
+            Node {
+                character: '╼',
+                source: LineColumn { line: 1, column: 1 },
+                visual: LineColumn { line: 1, column: 1 },
+                region: (Region::Center, Region::Center),
+            },
+            Node {
+                character: '╼',
+                source: LineColumn { line: 1, column: 1 },
+                visual: LineColumn { line: 1, column: 1 },
+                region: (Region::Center, Region::East),
+            },
+            &Edge(None, Brush::EastWest('━'), None),
+        )
+    ]
+);
+
+parse!(
+    mixed_edge_half,
+    "=╴",
+    [
+        (
+            Node {
+                character: '=',
+                source: LineColumn { line: 1, column: 0 },
+                visual: LineColumn { line: 1, column: 0 },
+                region: (Region::Center, Region::West),
+            },
+            Node {
+                character: '=',
+                source: LineColumn { line: 1, column: 0 },
+                visual: LineColumn { line: 1, column: 0 },
+                region: (Region::Center, Region::East),
+            },
+            &Edge(None, Brush::EastWest('='), None),
+        ),
+        (
+            Node {
+                character: '╴',
+                source: LineColumn { line: 1, column: 1 },
+                visual: LineColumn { line: 1, column: 1 },
+                region: (Region::Center, Region::West),
+            },
+            Node {
+                character: '╴',
+                source: LineColumn { line: 1, column: 1 },
+                visual: LineColumn { line: 1, column: 1 },
+                region: (Region::Center, Region::Center),
+            },
+            &Edge(None, Brush::EastWest('─'), None),
+        )
+    ]
+);
+
+parse!(
+    mixed_edge_orientation,
+    "=┐",
+    [
+        (
+            Node {
+                character: '=',
+                source: LineColumn { line: 1, column: 0 },
+                visual: LineColumn { line: 1, column: 0 },
+                region: (Region::Center, Region::West),
+            },
+            Node {
+                character: '=',
+                source: LineColumn { line: 1, column: 0 },
+                visual: LineColumn { line: 1, column: 0 },
+                region: (Region::Center, Region::East),
+            },
+            &Edge(None, Brush::EastWest('='), None),
+        ),
+        (
+            Node {
+                character: '┐',
+                source: LineColumn { line: 1, column: 1 },
+                visual: LineColumn { line: 1, column: 1 },
+                region: (Region::Center, Region::West),
+            },
+            Node {
+                character: '┐',
+                source: LineColumn { line: 1, column: 1 },
+                visual: LineColumn { line: 1, column: 1 },
+                region: (Region::Center, Region::Center),
+            },
+            &Edge(None, Brush::EastWest('─'), None),
+        ),
+        (
+            Node {
+                character: '┐',
+                source: LineColumn { line: 1, column: 1 },
+                visual: LineColumn { line: 1, column: 1 },
+                region: (Region::Center, Region::Center),
+            },
+            Node {
+                character: '┐',
+                source: LineColumn { line: 1, column: 1 },
+                visual: LineColumn { line: 1, column: 1 },
+                region: (Region::South, Region::Center),
+            },
+            &Edge(None, Brush::NorthSouth('│'), None),
+        )
+    ]
+);
+
+parse!(
     multi_line,
     "──\n───",
     [

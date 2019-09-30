@@ -846,3 +846,116 @@ parse!(
         &Edge(None, Brush::NorthSouth('│'), None),
     )]
 );
+
+parse!(
+    crash_e2b9fd646af8daa1e3d76831d1d3898156cfc91e,
+    // ==╢ ╥
+    String::from_utf8(base64::decode("PT3ilaId4pWl").unwrap()).unwrap(),
+    [
+        (
+            Node {
+                character: '=',
+                source: LineColumn { line: 1, column: 0 },
+                visual: LineColumn { line: 1, column: 0 },
+                region: (Region::Center, Region::West),
+            },
+            Node {
+                character: '=',
+                source: LineColumn { line: 1, column: 1 },
+                visual: LineColumn { line: 1, column: 1 },
+                region: (Region::Center, Region::East),
+            },
+            &Edge(None, Brush::EastWest('='), None),
+        ),
+        (
+            Node {
+                character: '╢',
+                source: LineColumn { line: 1, column: 2 },
+                visual: LineColumn { line: 1, column: 2 },
+                region: (Region::North, Region::Center),
+            },
+            Node {
+                character: '╢',
+                source: LineColumn { line: 1, column: 2 },
+                visual: LineColumn { line: 1, column: 2 },
+                region: (Region::Center, Region::Center),
+            },
+            &Edge(None, Brush::NorthSouth('║'), None),
+        ),
+        (
+            Node {
+                character: '╢',
+                source: LineColumn { line: 1, column: 2 },
+                visual: LineColumn { line: 1, column: 2 },
+                region: (Region::Center, Region::West),
+            },
+            Node {
+                character: '╢',
+                source: LineColumn { line: 1, column: 2 },
+                visual: LineColumn { line: 1, column: 2 },
+                region: (Region::Center, Region::Center),
+            },
+            &Edge(None, Brush::EastWest('─'), None),
+        ),
+        (
+            Node {
+                character: '╢',
+                source: LineColumn { line: 1, column: 2 },
+                visual: LineColumn { line: 1, column: 2 },
+                region: (Region::Center, Region::Center),
+            },
+            Node {
+                character: '╢',
+                source: LineColumn { line: 1, column: 2 },
+                visual: LineColumn { line: 1, column: 2 },
+                region: (Region::South, Region::Center),
+            },
+            &Edge(None, Brush::NorthSouth('║'), None),
+        ),
+        (
+            Node {
+                character: '╥',
+                source: LineColumn { line: 1, column: 4 },
+                visual: LineColumn { line: 1, column: 4 },
+                region: (Region::Center, Region::West),
+            },
+            Node {
+                character: '╥',
+                source: LineColumn { line: 1, column: 4 },
+                visual: LineColumn { line: 1, column: 4 },
+                region: (Region::Center, Region::Center),
+            },
+            &Edge(None, Brush::EastWest('─'), None),
+        ),
+        (
+            Node {
+                character: '╥',
+                source: LineColumn { line: 1, column: 4 },
+                visual: LineColumn { line: 1, column: 4 },
+                region: (Region::Center, Region::Center),
+            },
+            Node {
+                character: '╥',
+                source: LineColumn { line: 1, column: 4 },
+                visual: LineColumn { line: 1, column: 4 },
+                region: (Region::South, Region::Center),
+            },
+            &Edge(None, Brush::NorthSouth('║'), None),
+        ),
+        (
+            Node {
+                character: '╥',
+                source: LineColumn { line: 1, column: 4 },
+                visual: LineColumn { line: 1, column: 4 },
+                region: (Region::Center, Region::Center),
+            },
+            Node {
+                character: '╥',
+                source: LineColumn { line: 1, column: 4 },
+                visual: LineColumn { line: 1, column: 4 },
+                region: (Region::Center, Region::East),
+            },
+            &Edge(None, Brush::EastWest('─'), None),
+        )
+    ]
+);
