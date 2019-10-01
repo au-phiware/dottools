@@ -280,9 +280,11 @@ impl State {
                         Brush::NorthEastSouthWest(_) => (Region::South, Region::West),
                     };
                     add_port!(self, port.start, end, port.edge);
-                    pass = true;
-                    complete_build = self.tx;
-                    self.tx = Tx::Initial;
+                    if !pass {
+                        pass = true;
+                        complete_build = self.tx;
+                        self.tx = Tx::Initial;
+                    }
                 } else if location.column + 1 == column
                     && match brush {
                         Brush::NorthWestSouthEast(brush) => match brush {

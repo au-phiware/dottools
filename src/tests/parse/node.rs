@@ -1187,3 +1187,40 @@ parse!(
         )
     ]
 );
+
+parse!(
+    disconnected,
+    "  \n-║",
+    [
+        (
+            Node {
+                character: '-',
+                source: LineColumn { line: 2, column: 0 },
+                visual: LineColumn { line: 2, column: 0 },
+                region: (Region::Center, Region::West),
+            },
+            Node {
+                character: '-',
+                source: LineColumn { line: 2, column: 0 },
+                visual: LineColumn { line: 2, column: 0 },
+                region: (Region::Center, Region::East),
+            },
+            &Edge(None, Brush::EastWest('-'), None),
+        ),
+        (
+            Node {
+                character: '║',
+                source: LineColumn { line: 2, column: 1 },
+                visual: LineColumn { line: 2, column: 1 },
+                region: (Region::North, Region::Center),
+            },
+            Node {
+                character: '║',
+                source: LineColumn { line: 2, column: 1 },
+                visual: LineColumn { line: 2, column: 1 },
+                region: (Region::South, Region::Center),
+            },
+            &Edge(None, Brush::NorthSouth('║'), None),
+        )
+    ]
+);
