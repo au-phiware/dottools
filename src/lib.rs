@@ -174,7 +174,7 @@ enum Tx {
     Build { start: Node, edge: Edge },
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 struct Port {
     start: Node,
     end: Node,
@@ -357,21 +357,6 @@ impl State {
                     end.region = (Region::Center, Region::Center);
                     add_edge!(self, port.start, end, port.edge);
                     built_north_south = true;
-                    if let Some(brush) = match c {
-                        '├' | '┝' | '┤' | '┥' | '╞' | '╡' | '┼' | '┽' | '┾' | '┿' | '╪' | '┞'
-                        | '┡' | '┦' | '┩' | '╀' | '╃' | '╄' | '╇' | '╿' => {
-                            Some('│')
-                        }
-                        '┟' | '┢' | '┧' | '┪' | '╁' | '╅' | '╆' | '╈' | '╽' | '┠' | '┣' | '┨'
-                        | '┫' | '╂' | '╉' | '╊' | '╋' => Some('┃'),
-                        '╟' | '╠' | '╢' | '╣' | '╫' | '╬' => Some('║'),
-                        _ => None,
-                    } {
-                        let start = end.clone();
-                        let mut end = self.location.clone();
-                        end.region = (Region::South, Region::Center);
-                        add_port!(self, start, end, Edge(None, Brush::NorthSouth(brush), None));
-                    }
                 } else {
                     add_port!(self, port);
                 }
